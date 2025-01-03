@@ -10,7 +10,6 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceRoot}/vscode-lean4"
             ],
-            "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/vscode-aeon/dist/**/*.js"

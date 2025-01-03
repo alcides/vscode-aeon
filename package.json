@@ -6,8 +6,7 @@
         "test": "lerna run --stream test",
         "watch": "lerna run --parallel --stream watch",
         "watchTest": "lerna run --parallel --stream watchTest",
-        "lint": "eslint -c .eslintrc.js \"{vscode-aeon}/src/**/*.{ts,tsx}\" \"vscode-aeon/test/suite/**/*.{ts,tsx}\"",
-        "prepare": "husky install"
+        "lint": "eslint -c .eslintrc.js \"{vscode-aeon}/src/**/*.{ts,tsx}\" \"vscode-aeon/test/suite/**/*.{ts,tsx}\""
     },
     "workspaces": [
         "vscode-aeon"
@@ -18,7 +17,6 @@
         "eslint": "^8.45.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "husky": "^9.0.11",
         "lerna": "^8.1.2",
         "lint-staged": "^15.2.2",
         "prettier": "^3.2.5",
