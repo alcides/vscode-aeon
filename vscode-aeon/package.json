@@ -1,0 +1,136 @@
+{
+    "name": "aeon",
+    "displayName": "Aeon",
+    "description": "Aeon language support for VS Code",
+    "version": "0.0.1",
+    "publisher": "Alcides Fonseca et al.",
+    "engines": {
+        "vscode": "^1.75.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "keywords": [
+        "Aeon"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alcides/vscode-aeon.git"
+    },
+    "homepage": "https://github.com/alcides/aeon",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Aeon",
+            "properties": {
+                "aeon.elaborationDelay": {
+                    "type": "number",
+                    "default": 200,
+                    "description": "Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower values may make editing feel faster at the cost of higher CPU usage."
+                }
+            }
+        },
+        "commands": [],
+        "languages": [
+            {
+                "id": "aeon",
+                "configuration": "./language-configuration.json",
+                "extensions": [
+                    ".ae"
+                ]
+            }
+        ],
+        "grammars": [
+            {
+                "language": "aeon",
+                "scopeName": "source.aeon",
+                "path": "./syntaxes/aeon.json"
+            }
+        ],
+        "keybindings": [],
+        "colors": [],
+        "menus": {
+            "commandPalette": [],
+            "editor/title": [],
+            "editor/context": [],
+            "webview/context": []
+        },
+        "semanticTokenScopes": [
+            {
+                "scopes": {
+                    "keyword": [
+                        "keyword.other"
+                    ]
+                }
+            }
+        ],
+        "configurationDefaults": {
+            "[aeon]": {
+                "editor.unicodeHighlight.ambiguousCharacters": false,
+                "editor.tabSize": 2,
+                "editor.insertSpaces": true,
+                "editor.wordSeparators": "`~@$%^&*()-=+[{]}⟨⟩⦃⦄⟦⟧⟮⟯‹›\\|;:\",.<>/",
+                "files.encoding": "utf8",
+                "files.eol": "\n",
+                "files.insertFinalNewline": true,
+                "files.trimFinalNewlines": true,
+                "files.trimTrailingWhitespace": true
+            }
+        },
+        "walkthroughs": []
+    },
+    "extensionKind": [
+        "workspace"
+    ],
+    "main": "./dist/extension",
+    "scripts": {
+        "vscode:prepublish": "webpack --env production",
+        "build": "webpack --env production",
+        "watch": "webpack --env development --watch",
+        "watchTest": "concurrently \"tsc -p . -w --outDir out\" \"npm run watch\"",
+        "package": "vsce package",
+        "packagePreRelease": "vsce package --pre-release",
+        "pretest": "tsc -p . --outDir out",
+        "test": "node ./out/test/suite/runTest.js"
+    },
+    "dependencies": {
+        "@leanprover/unicode-input": "~0.1.0",
+        "@leanprover/unicode-input-component": "~0.1.0",
+        "@vscode/codicons": "^0.0.36",
+        "@vscode-elements/elements": "^1.7.1",
+        "markdown-it": "^14.1.0",
+        "markdown-it-anchor": "^9.0.1",
+        "semver": "^7.6.0",
+        "vscode-languageclient": "^8.0.2",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@types/glob": "^8.1.0",
+        "@types/markdown-it": "^14.1.1",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "^20.12.12",
+        "@types/semver": "^7.5.7",
+        "@types/vscode": "^1.75.0",
+        "@types/vscode-webview": "^1.57.5",
+        "@vscode/test-electron": "^2.3.9",
+        "@vscode/vsce": "^2.21.1",
+        "concurrently": "^8.2.2",
+        "copy-webpack-plugin": "^12.0.2",
+        "glob": "^10.3.16",
+        "mocha": "^10.3.0",
+        "ovsx": "^0.9.1",
+        "source-map-loader": "^5.0.0",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.4.5",
+        "webpack": "^5.90.3",
+        "webpack-cli": "^5.1.4"
+    },
+    "icon": "images/lean_logo.png",
+    "license": "Apache-2.0",
+    "__metadata": {
+        "id": "ddb6b8b1-9e92-40ce-90d4-45bb5f345ef9",
+        "publisherDisplayName": "leanprover",
+        "publisherId": "36715126-cec3-4ee0-926f-91a098ea5112",
+        "isPreReleaseVersion": false
+    }
+}
