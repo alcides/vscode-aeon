@@ -1,6 +1,6 @@
 {
-    "name": "aeon",
-    "displayName": "Aeon",
+    "name": "aeon-lang",
+    "displayName": "Æon",
     "description": "Aeon language support for VS Code",
     "version": "0.0.1",
     "publisher": "AlcidesFonseca",
