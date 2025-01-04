@@ -5,7 +5,7 @@ if [ $# != 1 ]; then
 fi
 
 new_version="$1"
-sed -i 's/"version": ".*"/"version": "'$new_version'"/' vscode-aeon/package.json
+gsed -i 's/"version": ".*"/"version": "'$new_version'"/' vscode-aeon/package.json
 git commit -am "Release $new_version"
 git tag -a v$new_version -m "vscode-aeon $new_version"
 
