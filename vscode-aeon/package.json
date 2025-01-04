@@ -81,5 +81,11 @@
         "@vscode-elements/elements": "^1.7.1",
         "vscode-languageclient": "^8.0.2",
         "semver": "^7.6.0"
+    },
+    "__metadata": {
+        "id": "aeon-lang",
+        "publisherDisplayName": "AlcidesFonseca",
+        "publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
+        "isPreReleaseVersion": false
     }
 }
