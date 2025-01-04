@@ -72,7 +72,7 @@
         "typescript": "^5.7.2",
         "typescript-eslint": "^8.16.0",
         "@vscode/vsce": "^2.21.1",
-        "ovsx": "^0.9.1"
+        "ovsx": "^0.10.1"
     },
     "icon": "images/lean_logo.png",
     "dependencies": {
