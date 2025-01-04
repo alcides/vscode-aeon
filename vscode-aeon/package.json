@@ -3,7 +3,7 @@
     "displayName": "Aeon",
     "description": "Aeon language support for VS Code",
     "version": "0.0.1",
-    "publisher": "Alcides Fonseca et al.",
+    "publisher": "AlcidesFonseca",
     "engines": {
         "vscode": "^1.75.0"
     },
