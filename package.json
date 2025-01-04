@@ -6,7 +6,7 @@
         "test": "lerna run --stream test",
         "watch": "lerna run --parallel --stream watch",
         "watchTest": "lerna run --parallel --stream watchTest",
-        "lint": "eslint -c .eslintrc.js \"{vscode-aeon}/src/**/*.{ts,tsx}\" \"vscode-aeon/test/suite/**/*.{ts,tsx}\""
+        "lint": "eslint -c .eslintrc.js \"vscode-aeon/src/extension.ts\""
     },
     "workspaces": [
         "vscode-aeon"

@@ -25,16 +25,7 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     parserOptions: {
         project: [
-            './lean4-infoview-api/tsconfig.json',
-            './lean4-infoview/tsconfig.json',
-            './lean4-infoview/test/tsconfig.json',
-            './lean4-unicode-input/tsconfig.json',
-            './lean4-unicode-input-component/tsconfig.json',
-            './vscode-lean4/tsconfig.json',
-            './vscode-lean4/webview/tsconfig.json',
-            './vscode-lean4/loogleview/tsconfig.json',
-            './vscode-lean4/moogleview/tsconfig.json',
-            './vscode-lean4/abbreviationview/tsconfig.json',
+            './vscode-aeon/tsconfig.json',
         ],
         sourceType: 'module',
     },
