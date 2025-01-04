@@ -9,7 +9,7 @@
         "lint": "eslint -c .eslintrc.js \"vscode-aeon/src/extension.ts\""
     },
     "workspaces": [
-        "vscode-aeon"
+        "aeon"
     ],
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^7.9.0",
