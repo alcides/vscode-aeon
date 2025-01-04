@@ -4,8 +4,15 @@ if [ $# != 1 ]; then
   exit 1
 fi
 
+msed () {
+    case $(uname -s) in
+        *[Dd]arwin* | *BSD* ) gsed "$@";;
+        *) sed "$@";;
+    esac
+}
+
 new_version="$1"
-gsed -i 's/"version": ".*"/"version": "'$new_version'"/' vscode-aeon/package.json
+msed -i 's/"version": ".*"/"version": "'$new_version'"/' vscode-aeon/package.json
 git commit -am "Release $new_version"
 git tag -a v$new_version -m "vscode-aeon $new_version"
 
