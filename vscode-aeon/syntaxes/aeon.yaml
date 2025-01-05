@@ -1,0 +1,98 @@
+$schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: Aeon
+scopeName: source.aeon
+fileTypes: [.ae]
+patterns:
+  - include: '#comments'
+  - include: '#keywords'
+  - include: '#literals'
+  - include: '#operators'
+  - include: '#functions'
+  - include: '#types'
+repository:
+  comments:
+    patterns:
+      - include: '#lineComment'
+  lineComment:
+    patterns:
+      - name: comment.line.number-sign.ae
+        match: '#.*$'
+    captures:
+      '1':
+        patterns:
+          - name: keyword.comment.todo.ae
+            match: \bTODO\b
+  literals:
+    patterns:
+      - include: '#strings'
+      - include: '#numbers'
+      - include: '#booleans'
+  strings:
+    name: string.quoted.double.ae
+    begin: '"'
+    end: '"'
+    patterns:
+      - name: constant.character.escape.ae
+        match: \\.
+  numbers:
+    patterns:
+      - name: constant.numeric.float.ae
+        match: \b\d+\.\d+\b
+      - name: constant.numeric.integer.ae
+        match: \b\d+\b
+  booleans:
+    patterns:
+      - name: constant.language.boolean.ae
+        match: \b(true|false)\b
+  operators:
+    patterns:
+      - name: keyword.operator.arithmetic.ae
+        match: \+|\-|\*|\/|\%
+      - name: keyword.operator.comparison.ae
+        match: '==|>=|<=|>|<|!='
+      - name: keyword.operator.logical.ae
+        match: \|\||&&|!
+      - name: keyword.operator.lambda.ae
+        match: '=>|\->'
+      - name: keyword.operator.assignment.ae
+        match: '='
+  types:
+    patterns:
+      - include: '#primitiveTypes'
+      - include: '#liquidTypes'
+  primitiveTypes:
+    patterns:
+      - name: entity.name.type.ae
+        match: \b(Unit|Int|Float|String|Bool)\b
+  liquidTypes:
+    patterns:
+      - name: entity.name.type.liquidtype.ae
+        match: \{([^}]+)\|([^}]+)\}
+      - name: keyword.operator.liquidtype.ae
+        match: \|
+  functions:
+    patterns:
+      - include: '#functionDefinitions'
+      - include: '#nativeFunctions'
+  functionDefinitions:
+    patterns:
+      - name: entity.name.function.ae
+        match: \b(def\s+([a-zA-Z][a-zA-Z0-9]*))\b
+      - name: variable.parameter.ae
+        match: '\b([a-zA-Z][a-zA-Z0-9]*)\s*:'
+  nativeFunctions:
+    patterns:
+      - name: support.function.ae
+        match: \b(native|native_import)\b
+  keywords:
+    patterns:
+      - include: '#importKeywords'
+      - include: '#controlKeywords'
+  importKeywords:
+    patterns:
+      - name: keyword.control.import.ae
+        match: ^(import)\s+(.+)
+  controlKeywords:
+    patterns:
+      - name: keyword.control.ae
+        match: \b(if|then|else|let|def|@minimize|@maximize)\b
