@@ -3,7 +3,7 @@
   "name": "Aeon",
   "scopeName": "source.aeon",
   "fileTypes": [
-    ".ae"
+    "ae"
   ],
   "patterns": [
     {
@@ -36,20 +36,10 @@
     "lineComment": {
       "patterns": [
         {
-          "name": "comment.line.number-sign.ae",
-          "match": "#.*$"
+          "match": "#.*$",
+          "name": "keyword.comment.todo.aeon"
         }
-      ],
-      "captures": {
-        "1": {
-          "patterns": [
-            {
-              "name": "keyword.comment.todo.ae",
-              "match": "\\bTODO\\b"
-            }
-          ]
-        }
-      }
+      ]
     },
     "literals": {
       "patterns": [
@@ -65,12 +55,12 @@
       ]
     },
     "strings": {
-      "name": "string.quoted.double.ae",
+      "name": "string.quoted.double.aeon",
       "begin": "\"",
       "end": "\"",
       "patterns": [
         {
-          "name": "constant.character.escape.ae",
+          "name": "constant.character.escape.aeon",
           "match": "\\\\."
         }
       ]
@@ -78,19 +68,22 @@
     "numbers": {
       "patterns": [
         {
-          "name": "constant.numeric.float.ae",
-          "match": "\\b\\d+\\.\\d+\\b"
-        },
-        {
-          "name": "constant.numeric.integer.ae",
-          "match": "\\b\\d+\\b"
+          "match": "\\b\\d+(\\.\\d+)?\\b",
+          "captures": {
+            "0": {
+              "name": "constant.numeric.integer.aeon"
+            },
+            "1": {
+              "name": "constant.numeric.float.aeon"
+            }
+          }
         }
       ]
     },
     "booleans": {
       "patterns": [
         {
-          "name": "constant.language.boolean.ae",
+          "name": "constant.language.boolean.aeon",
           "match": "\\b(true|false)\\b"
         }
       ]
@@ -98,23 +91,23 @@
     "operators": {
       "patterns": [
         {
-          "name": "keyword.operator.arithmetic.ae",
+          "name": "keyword.operator.arithmetic.aeon",
           "match": "\\+|\\-|\\*|\\/|\\%"
         },
         {
-          "name": "keyword.operator.comparison.ae",
+          "name": "keyword.operator.comparison.aeon",
           "match": "==|>=|<=|>|<|!="
         },
         {
-          "name": "keyword.operator.logical.ae",
+          "name": "keyword.operator.logical.aeon",
           "match": "\\|\\||&&|!"
         },
         {
-          "name": "keyword.operator.lambda.ae",
+          "name": "keyword.operator.lambda.aeon",
           "match": "=>|\\->"
         },
         {
-          "name": "keyword.operator.assignment.ae",
+          "name": "keyword.operator.assignment.aeon",
           "match": "="
         }
       ]
@@ -126,13 +119,27 @@
         },
         {
           "include": "#liquidTypes"
+        },
+        {
+          "include": "#typeAssignment"
         }
       ]
+    },
+    "typeAssignment": {
+      "match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\s*(:)\\s*([a-zA-Z][a-zA-Z0-9_]*)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.type.assignment.aeon"
+        },
+        "2": {
+          "name": "entity.name.type.aeon"
+        }
+      }
     },
     "primitiveTypes": {
       "patterns": [
         {
-          "name": "entity.name.type.ae",
+          "name": "entity.name.type.aeon",
           "match": "\\b(Unit|Int|Float|String|Bool)\\b"
         }
       ]
@@ -140,11 +147,11 @@
     "liquidTypes": {
       "patterns": [
         {
-          "name": "entity.name.type.liquidtype.ae",
+          "name": "entity.name.type.liquidtype.aeon",
           "match": "\\{([^}]+)\\|([^}]+)\\}"
         },
         {
-          "name": "keyword.operator.liquidtype.ae",
+          "name": "keyword.operator.liquidtype.aeon",
           "match": "\\|"
         }
       ]
@@ -162,19 +169,29 @@
     "functionDefinitions": {
       "patterns": [
         {
-          "name": "entity.name.function.ae",
-          "match": "\\b(def\\s+([a-zA-Z][a-zA-Z0-9]*))\\b"
-        },
-        {
-          "name": "variable.parameter.ae",
-          "match": "\\b([a-zA-Z][a-zA-Z0-9]*)\\s*:"
+          "match": "\\b(def)\\s+([a-zA-Z][a-zA-Z0-9_]*)(\\s*\\(.*\\)\\s*)*(:)\\s+([a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.operator.type.assignment.aeon"
+            },
+            "2": {
+              "name": "entity.name.type.aeon"
+            },
+            "3": {},
+            "4": {
+              "name": "keyword.operator.type.assignment.aeon"
+            },
+            "5": {
+              "name": "storage.type.aeon"
+            }
+          }
         }
       ]
     },
     "nativeFunctions": {
       "patterns": [
         {
-          "name": "support.function.ae",
+          "name": "support.function.aeon",
           "match": "\\b(native|native_import)\\b"
         }
       ]
@@ -182,26 +199,45 @@
     "keywords": {
       "patterns": [
         {
-          "include": "#importKeywords"
+          "include": "#importKeyword"
         },
         {
           "include": "#controlKeywords"
         }
       ]
     },
-    "importKeywords": {
+    "importKeyword": {
       "patterns": [
         {
-          "name": "keyword.control.import.ae",
-          "match": "^(import)\\s+(.+)"
+          "match": "^(import)\\s+\"(.+)\"",
+          "captures": {
+            "1": {
+              "name": "keyword.other.import.aeon"
+            },
+            "2": {
+              "name": "entity.name.namespace.aeon"
+            }
+          }
         }
       ]
     },
     "controlKeywords": {
       "patterns": [
         {
-          "name": "keyword.control.ae",
-          "match": "\\b(if|then|else|let|def|@minimize|@maximize)\\b"
+          "match": "\\b(where|let|in)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.$1.aeon"
+            }
+          }
+        },
+        {
+          "match": "\\b(if|then|else)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.aeon"
+            }
+          }
         }
       ]
     }
