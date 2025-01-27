@@ -51,7 +51,10 @@
             {
                 "language": "aeon",
                 "scopeName": "source.aeon",
-                "path": "./syntaxes/aeon.json"
+                "path": "./syntaxes/aeon.json",
+				"embeddedLanguages": {
+                    "source.python": "python"
+                }
             }
         ]
     },
@@ -87,5 +90,9 @@
         "publisherDisplayName": "AlcidesFonseca",
         "publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
         "isPreReleaseVersion": false
-    }
+    },
+	"embeddedLanguages": {
+                    "source.python": "python",
+                    "meta.embedded.block.python": "python"
+      }
 }
