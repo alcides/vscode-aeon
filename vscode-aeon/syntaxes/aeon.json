@@ -191,8 +191,36 @@
     "nativeFunctions": {
       "patterns": [
         {
-          "name": "support.function.aeon",
-          "match": "\\b(native|native_import)\\b"
+          "name": "meta.embedded.python.aeon",
+          "begin": "(native)\\s+\"",
+          "end": "\"",
+          "captures": {
+            "1": {
+              "name": "support.function.native.aeon"
+            }
+          },
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "name": "meta.native.import.aeon",
+          "begin": "(native_import)\\s+\"",
+          "end": "\"",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.import.native.aeon"
+            }
+          },
+          "contentName": "string.quoted.module.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
         }
       ]
     },
@@ -235,7 +263,7 @@
           "match": "\\b(if|then|else)\\b",
           "captures": {
             "1": {
-              "name": "keyword.control.aeon"
+              "name": "keyword.control.$1.aeon"
             }
           }
         }

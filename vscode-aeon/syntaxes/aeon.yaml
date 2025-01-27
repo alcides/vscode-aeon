@@ -86,15 +86,29 @@ repository:
           "5": { name: storage.type.aeon }
   nativeFunctions:
     patterns:
-      - name: support.function.aeon
-        match: \b(native|native_import)\b #TODO improve this in the future to support python native syntax highlighting
+      - name: meta.embedded.python.aeon
+        begin: '(native)\s+"'
+        end: '"'
+        captures:
+          "1": { name: support.function.native.aeon }
+        contentName: source.python
+        patterns:
+          - include: source.python
+      - name: meta.native.import.aeon 
+        begin: '(native_import)\s+"'
+        end: '"'
+        beginCaptures:
+          "1": { name: keyword.control.import.native.aeon }
+        contentName: string.quoted.module.python
+        patterns:
+          - include: source.python
   keywords:
     patterns:
       - include: "#importKeyword"
       - include: "#controlKeywords"
   importKeyword:
     patterns:
-      - match: '^(import)\s+"(.+)"' #adiciar entity.name.namespace.aeon
+      - match: '^(import)\s+"(.+)"'
         captures:
           "1": { name: keyword.other.import.aeon }
           "2": { name: entity.name.namespace.aeon }
@@ -106,4 +120,4 @@ repository:
 
       - match: '\b(if|then|else)\b'
         captures:
-          "1": { name: keyword.control.aeon }
+          "1": { name: keyword.control.$1.aeon }
