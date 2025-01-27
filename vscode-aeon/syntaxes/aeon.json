@@ -1,238 +1,273 @@
 {
-    "name": "Aeon",
-    "scopeName": "source.aeon",
-    "fileTypes": [],
-    "patterns": [
-        {
-            "include": "#comments"
-        },
-        {
-            "match": "\\b(Prop|Type|Sort)\\b",
-            "name": "storage.type.lean4"
-        },
-        {
-            "match": "\\battribute\\b\\s*\\[[^\\]]*\\]",
-            "name": "storage.modifier.lean4"
-        },
-        {
-            "match": "@\\[[^\\]]*\\]",
-            "name": "storage.modifier.lean4"
-        },
-        {
-            "match": "\\b(?<!\\.)(global|local|scoped|partial|unsafe|private|protected|noncomputable)(?!\\.)\\b",
-            "name": "storage.modifier.lean4"
-        },
-        {
-            "match": "\\b(sorry|admit|stop)\\b",
-            "name": "invalid.illegal.lean4"
-        },
-        {
-            "match": "#(print|eval|reduce|check|check_failure)\\b",
-            "name": "keyword.other.lean4"
-        },
-        {
-            "match": "\\bderiving\\s+instance\\b",
-            "name": "keyword.other.command.lean4"
-        },
-        {
-            "begin": "\\b(?<!\\.)(inductive|coinductive|structure|theorem|axiom|abbrev|lemma|def|instance|class|constant)\\b\\s+(\\{[^}]*\\})?",
-            "beginCaptures": {
-                "1": {
-                    "name": "keyword.other.definitioncommand.lean4"
-                }
-            },
-            "patterns": [
-                {
-                    "include": "#comments"
-                },
-                {
-                    "include": "#definitionName"
-                },
-                {
-                    "match": ","
-                }
-            ],
-            "end": "(?=\\bwith\\b|\\bextends\\b|\\bwhere\\b|[:\\|\\(\\[\\{⦃<>])",
-            "name": "meta.definitioncommand.lean4"
-        },
-        {
-            "match": "\\b(?<!\\.)(theorem|show|have|from|suffices|nomatch|def|class|structure|instance|set_option|initialize|builtin_initialize|example|inductive|coinductive|axiom|constant|universe|universes|variable|variables|import|open|export|theory|prelude|renaming|hiding|exposing|do|by|let|extends|mutual|mut|where|rec|syntax|macro_rules|macro|deriving|fun|section|namespace|end|infix|infixl|infixr|postfix|prefix|notation|abbrev|if|then|else|calc|match|with|for|in|unless|try|catch|finally|return|continue|break)(?!\\.)\\b",
-            "name": "keyword.other.lean4"
-        },
-        {
-            "begin": "«",
-            "end": "»",
-            "contentName": "entity.name.lean4"
-        },
-        {
-            "begin": "(s!)\"",
-            "end": "\"",
-            "name": "string.interpolated.lean4",
-            "beginCaptures": {
-                "1": {
-                    "name": "keyword.other.lean4"
-                }
-            },
-            "patterns": [
-                {
-                    "begin": "(\\{)",
-                    "end": "(\\})",
-                    "beginCaptures": {
-                        "1": {
-                            "name": "keyword.other.lean4"
-                        }
-                    },
-                    "endCaptures": {
-                        "1": {
-                            "name": "keyword.other.lean4"
-                        }
-                    },
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        }
-                    ]
-                },
-                {
-                    "match": "\\\\[\\\\\"ntr']",
-                    "name": "constant.character.escape.lean4"
-                },
-                {
-                    "match": "\\\\x[0-9A-Fa-f][0-9A-Fa-f]",
-                    "name": "constant.character.escape.lean4"
-                },
-                {
-                    "match": "\\\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]",
-                    "name": "constant.character.escape.lean4"
-                }
-            ]
-        },
-        {
-            "begin": "\"",
-            "end": "\"",
-            "name": "string.quoted.double.lean4",
-            "patterns": [
-                {
-                    "match": "\\\\[\\\\\"ntr']",
-                    "name": "constant.character.escape.lean4"
-                },
-                {
-                    "match": "\\\\x[0-9A-Fa-f][0-9A-Fa-f]",
-                    "name": "constant.character.escape.lean4"
-                },
-                {
-                    "match": "\\\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]",
-                    "name": "constant.character.escape.lean4"
-                }
-            ]
-        },
-        {
-            "name": "constant.language.lean4",
-            "match": "\\b(true|false)\\b"
-        },
-        {
-            "name": "string.quoted.single.lean4",
-            "match": "'[^\\\\']'"
-        },
-        {
-            "name": "string.quoted.single.lean4",
-            "match": "'(\\\\(x[0-9A-Fa-f][0-9A-Fa-f]|u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]|.))'",
-            "captures": {
-                "1": {
-                    "name": "constant.character.escape.lean4"
-                }
-            }
-        },
-        {
-            "match": "`+[^\\[(]\\S+",
-            "name": "entity.name.lean4"
-        },
-        {
-            "match": "\\b([0-9]+|0([xX][0-9a-fA-F]+)|[-]?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?)\\b",
-            "name": "constant.numeric.lean4"
-        }
-    ],
-    "repository": {
-        "definitionName": {
-            "patterns": [
-                {
-                    "match": "\\b[^:«»\\(\\)\\{\\}[:space:]=→λ∀?][^:«»\\(\\)\\{\\}[:space:]]*",
-                    "name": "entity.name.function.lean4"
-                },
-                {
-                    "begin": "«",
-                    "end": "»",
-                    "contentName": "entity.name.function.lean4"
-                }
-            ]
-        },
-        "dashComment": {
-            "begin": "--",
-            "end": "$",
-            "name": "comment.line.double-dash.lean4",
-            "patterns": [
-                {
-                    "include": "source.lean4.markdown"
-                }
-            ]
-        },
-        "docComment": {
-            "begin": "/--",
-            "end": "-/",
-            "name": "comment.block.documentation.lean4",
-            "patterns": [
-                {
-                    "include": "source.lean4.markdown"
-                },
-                {
-                    "include": "#blockComment"
-                }
-            ]
-        },
-        "modDocComment": {
-            "begin": "/-!",
-            "end": "-/",
-            "name": "comment.block.documentation.lean4",
-            "patterns": [
-                {
-                    "include": "source.lean4.markdown"
-                },
-                {
-                    "include": "#blockComment"
-                }
-            ]
-        },
-        "blockComment": {
-            "begin": "/-",
-            "end": "-/",
-            "name": "comment.block.lean4",
-            "patterns": [
-                {
-                    "include": "source.lean4.markdown"
-                },
-                {
-                    "include": "#blockComment"
-                }
-            ]
-        },
-        "comments": {
-            "patterns": [
-                {
-                    "include": "#dashComment"
-                },
-                {
-                    "include": "#docComment"
-                },
-                {
-                    "include": "#stringBlock"
-                },
-                {
-                    "include": "#modDocComment"
-                },
-                {
-                    "include": "#blockComment"
-                }
-            ]
-        }
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Aeon",
+  "scopeName": "source.aeon",
+  "fileTypes": [
+    "ae"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#literals"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#types"
     }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "include": "#lineComment"
+        }
+      ]
+    },
+    "lineComment": {
+      "patterns": [
+        {
+          "match": "#.*$",
+          "name": "keyword.comment.todo.aeon"
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#booleans"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.aeon",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.aeon",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "\\b\\d+(\\.\\d+)?\\b",
+          "captures": {
+            "0": {
+              "name": "constant.numeric.integer.aeon"
+            },
+            "1": {
+              "name": "constant.numeric.float.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "booleans": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.aeon",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.aeon",
+          "match": "\\+|\\-|\\*|\\/|\\%"
+        },
+        {
+          "name": "keyword.operator.comparison.aeon",
+          "match": "==|>=|<=|>|<|!="
+        },
+        {
+          "name": "keyword.operator.logical.aeon",
+          "match": "\\|\\||&&|!"
+        },
+        {
+          "name": "keyword.operator.lambda.aeon",
+          "match": "=>|\\->"
+        },
+        {
+          "name": "keyword.operator.assignment.aeon",
+          "match": "="
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "include": "#primitiveTypes"
+        },
+        {
+          "include": "#liquidTypes"
+        },
+        {
+          "include": "#typeAssignment"
+        }
+      ]
+    },
+    "typeAssignment": {
+      "match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\s*(:)\\s*([a-zA-Z][a-zA-Z0-9_]*)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.type.assignment.aeon"
+        },
+        "2": {
+          "name": "entity.name.type.aeon"
+        }
+      }
+    },
+    "primitiveTypes": {
+      "patterns": [
+        {
+          "name": "entity.name.type.aeon",
+          "match": "\\b(Unit|Int|Float|String|Bool)\\b"
+        }
+      ]
+    },
+    "liquidTypes": {
+      "patterns": [
+        {
+          "name": "entity.name.type.liquidtype.aeon",
+          "match": "\\{([^}]+)\\|([^}]+)\\}"
+        },
+        {
+          "name": "keyword.operator.liquidtype.aeon",
+          "match": "\\|"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "include": "#functionDefinitions"
+        },
+        {
+          "include": "#nativeFunctions"
+        }
+      ]
+    },
+    "functionDefinitions": {
+      "patterns": [
+        {
+          "match": "\\b(def)\\s+([a-zA-Z][a-zA-Z0-9_]*)(\\s*\\(.*\\)\\s*)*(:)\\s+([a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.operator.type.assignment.aeon"
+            },
+            "2": {
+              "name": "entity.name.type.aeon"
+            },
+            "3": {},
+            "4": {
+              "name": "keyword.operator.type.assignment.aeon"
+            },
+            "5": {
+              "name": "storage.type.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "nativeFunctions": {
+      "patterns": [
+        {
+          "name": "meta.embedded.python.aeon",
+          "begin": "(native)\\s+\"",
+          "end": "\"",
+          "captures": {
+            "1": {
+              "name": "support.function.native.aeon"
+            }
+          },
+          "contentName": "source.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        },
+        {
+          "name": "meta.native.import.aeon",
+          "begin": "(native_import)\\s+\"",
+          "end": "\"",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.import.native.aeon"
+            }
+          },
+          "contentName": "string.quoted.module.python",
+          "patterns": [
+            {
+              "include": "source.python"
+            }
+          ]
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "include": "#importKeyword"
+        },
+        {
+          "include": "#controlKeywords"
+        }
+      ]
+    },
+    "importKeyword": {
+      "patterns": [
+        {
+          "match": "^(import)\\s+\"(.+)\"",
+          "captures": {
+            "1": {
+              "name": "keyword.other.import.aeon"
+            },
+            "2": {
+              "name": "entity.name.namespace.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "controlKeywords": {
+      "patterns": [
+        {
+          "match": "\\b(where|let|in)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.$1.aeon"
+            }
+          }
+        },
+        {
+          "match": "\\b(if|then|else)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.control.$1.aeon"
+            }
+          }
+        }
+      ]
+    }
+  }
 }
