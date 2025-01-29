@@ -7,37 +7,67 @@
   ],
   "patterns": [
     {
-      "include": "#comments"
-    },
-    {
-      "include": "#literals"
-    },
-    {
-      "include": "#functions"
-    },
-    {
-      "include": "#keywords"
-    },
-    {
-      "include": "#operators"
-    },
-    {
-      "include": "#types"
-    },
-    {
-      "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
-      "name": "entity.name.function.aeon"
-    },
-    {
-      "match": "\\b[A-Z][a-zA-Z0-9_]*\\b",
-      "name": "entity.name.type.aeon"
+      "include": "#declarations"
     }
   ],
   "repository": {
+    "declarations": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#imports"
+        },
+        {
+          "include": "#type-declarations"
+        },
+        {
+          "include": "#function-declarations"
+        },
+        {
+          "include": "#expressions"
+        }
+      ]
+    },
+    "expressions": {
+      "patterns": [
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#function-calls"
+        },
+        {
+          "include": "#type-references"
+        },
+        {
+          "include": "#identifiers"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
+          "name": "variable.other.aeon"
+        },
+        {
+          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b",
+          "name": "entity.name.type.aeon"
+        }
+      ]
+    },
     "comments": {
       "patterns": [
         {
-          "name": "comment.line.aeon",
+          "name": "comment.line.number-sign.aeon",
           "match": "#.*$"
         }
       ]
@@ -45,17 +75,17 @@
     "literals": {
       "patterns": [
         {
-          "include": "#strings"
+          "include": "#string-literals"
         },
         {
-          "include": "#numbers"
+          "include": "#numeric-literals"
         },
         {
-          "include": "#booleans"
+          "include": "#boolean-literals"
         }
       ]
     },
-    "strings": {
+    "string-literals": {
       "name": "string.quoted.double.aeon",
       "begin": "\"",
       "end": "\"",
@@ -66,7 +96,7 @@
         }
       ]
     },
-    "numbers": {
+    "numeric-literals": {
       "patterns": [
         {
           "name": "constant.numeric.float.aeon",
@@ -78,7 +108,7 @@
         }
       ]
     },
-    "booleans": {
+    "boolean-literals": {
       "patterns": [
         {
           "name": "constant.language.boolean.aeon",
@@ -86,20 +116,26 @@
         }
       ]
     },
-    "functions": {
+    "function-declarations": {
       "patterns": [
         {
-          "include": "#nativeFunctions"
+          "include": "#native-functions"
         },
         {
-          "include": "#lambdaFunctions"
+          "include": "#lambda-functions"
+        },
+        {
+          "include": "#kind-functions"
+        },
+        {
+          "include": "#standard-functions"
         }
       ]
     },
-    "nativeFunctions": {
+    "native-functions": {
       "patterns": [
         {
-          "name": "meta.embedded.python.aeon",
+          "name": "meta.function.native.aeon",
           "begin": "(native)\\s+\"",
           "end": "\"",
           "captures": {
@@ -115,7 +151,7 @@
           ]
         },
         {
-          "name": "meta.native.import.aeon",
+          "name": "meta.import.native.aeon",
           "begin": "(native_import)\\s+\"",
           "end": "\"",
           "beginCaptures": {
@@ -127,28 +163,75 @@
         }
       ]
     },
-    "lambdaFunctions": {
+    "lambda-functions": {
       "patterns": [
         {
-          "match": "(\\\\)\\s*([a-z][a-zA-Z0-9_]*)",
+          "match": "(\\\\)\\s*([a-zA-Z0-9_]+)",
           "captures": {
             "1": {
-              "name": "keyword.operator.lambda.symbol.aeon"
+              "name": "keyword.operator.lambda.aeon"
             },
             "2": {
-              "name": "variable.parameter.function.lambda.aeon"
+              "name": "variable.parameter.lambda.aeon"
             }
           }
         }
       ]
     },
-    "keywords": {
+    "kind-functions": {
       "patterns": [
         {
-          "include": "#imports"
-        },
+          "match": "(Λ)\\s*([a-z][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.operator.kind.lambda.aeon"
+            },
+            "2": {
+              "name": "variable.parameter.kind.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "standard-functions": {
+      "patterns": [
         {
-          "include": "#controlKeywords"
+          "match": "\\b(def)\\s+([a-zA-Z0-9_]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.function.aeon"
+            },
+            "2": {
+              "name": "entity.name.function.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "function-calls": {
+      "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
+      "name": "entity.name.function.aeon"
+    },
+    "type-declarations": {
+      "patterns": [
+        {
+          "match": "\\b(type)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.aeon"
+            },
+            "2": {
+              "name": "entity.name.type.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "type-references": {
+      "patterns": [
+        {
+          "name": "storage.type.built-in.aeon",
+          "match": "\\b(Unit|Int|Float|String|Bool)\\b"
         }
       ]
     },
@@ -161,10 +244,10 @@
               "name": "keyword.control.import.aeon"
             },
             "2": {
-              "name": "entity.name.function.aeon"
+              "name": "entity.name.function.imported.aeon"
             },
             "3": {
-              "name": "entity.name.namespace.aeon"
+              "name": "string.quoted.module.aeon"
             }
           }
         },
@@ -175,18 +258,14 @@
               "name": "keyword.control.import.aeon"
             },
             "2": {
-              "name": "entity.name.namespace.aeon"
+              "name": "string.quoted.module.aeon"
             }
           }
         }
       ]
     },
-    "controlKeywords": {
+    "keywords": {
       "patterns": [
-        {
-          "match": "\\b(where|in)\\b",
-          "name": "keyword.control.aeon"
-        },
         {
           "match": "\\b(let)\\s+([a-zA-Z0-9_]+)\\b",
           "captures": {
@@ -194,50 +273,54 @@
               "name": "keyword.declaration.let.aeon"
             },
             "2": {
-              "name": "variable.declaration.aeon"
+              "name": "variable.other.declaration.aeon"
             }
           }
         },
         {
-          "match": "\\b(def)\\s+([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(@)([a-zA-Z0-9_]+)\\b",
           "captures": {
             "1": {
-              "name": "keyword.declaration.function.aeon"
+              "name": "keyword.decorator.aeon"
             },
             "2": {
-              "name": "entity.name.function.aeon"
+              "name": "entity.name.decorator.aeon"
             }
           }
         },
         {
-          "match": "\\b(type)\\s+([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(forall)\\s+([a-zA-Z0-9_]+)\\b",
           "captures": {
             "1": {
-              "name": "keyword.declaration.type.aeon"
+              "name": "keyword.other.quantifier.aeon"
             },
             "2": {
-              "name": "entity.name.type.aeon"
+              "name": "entity.name.type.parameter.aeon"
             }
           }
         },
         {
-          "match": "\\b(if|then|else)\\b",
-          "name": "keyword.control.conditional.aeon"
+          "name": "keyword.control.aeon",
+          "match": "\\b(where|in|if|then|else)\\b"
         }
       ]
     },
     "operators": {
       "patterns": [
         {
-          "name": "keyword.operator.lambda.arrow.aeon",
+          "name": "keyword.operator.arrow.function.aeon",
           "match": "->"
+        },
+        {
+          "name": "keyword.operator.arrow.kind.aeon",
+          "match": "=>"
         },
         {
           "name": "keyword.operator.assignment.aeon",
           "match": "="
         },
         {
-          "name": "punctuation.separator.type",
+          "name": "punctuation.separator.type.aeon",
           "match": ":"
         },
         {
@@ -246,23 +329,23 @@
         },
         {
           "name": "keyword.operator.comparison.aeon",
-          "match": "(==|>=|<=|!=|>|<)"
+          "match": "(==|>=|<=|!=|>|<|-->)"
         },
         {
-          "name": "keyword.operator.arithmetic.aeon",
+          "name": "keyword.operator.arithmetic.integer.aeon",
           "match": "(\\+|-|\\*|/|%)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.float.aeon",
+          "match": "(\\+|-|\\*|/|%)."
         },
         {
           "name": "punctuation.terminator.statement.aeon",
           "match": ";"
-        }
-      ]
-    },
-    "types": {
-      "patterns": [
+        },
         {
-          "name": "storage.type.primitive.aeon",
-          "match": "\\b(Unit|Int|Float|String|Bool)\\b"
+          "name": "keyword.operator.pipe.aeon",
+          "match": "\\b(where|\\|)\\b"
         }
       ]
     }
