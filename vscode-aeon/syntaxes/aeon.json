@@ -7,67 +7,37 @@
   ],
   "patterns": [
     {
-      "include": "#declarations"
+      "include": "#comments"
+    },
+    {
+      "include": "#literals"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
+      "name": "entity.name.function.aeon"
+    },
+    {
+      "match": "\\b[A-Z][a-zA-Z0-9_]*\\b",
+      "name": "entity.name.type.aeon"
     }
   ],
   "repository": {
-    "declarations": {
-      "patterns": [
-        {
-          "include": "#comments"
-        },
-        {
-          "include": "#imports"
-        },
-        {
-          "include": "#type-declarations"
-        },
-        {
-          "include": "#function-declarations"
-        },
-        {
-          "include": "#expressions"
-        }
-      ]
-    },
-    "expressions": {
-      "patterns": [
-        {
-          "include": "#literals"
-        },
-        {
-          "include": "#keywords"
-        },
-        {
-          "include": "#operators"
-        },
-        {
-          "include": "#function-calls"
-        },
-        {
-          "include": "#type-references"
-        },
-        {
-          "include": "#identifiers"
-        }
-      ]
-    },
-    "identifiers": {
-      "patterns": [
-        {
-          "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
-          "name": "variable.other.aeon"
-        },
-        {
-          "match": "\\b[A-Z][a-zA-Z0-9_]*\\b",
-          "name": "entity.name.type.aeon"
-        }
-      ]
-    },
     "comments": {
       "patterns": [
         {
-          "name": "comment.line.number-sign.aeon",
+          "name": "comment.line.aeon",
           "match": "#.*$"
         }
       ]
@@ -75,17 +45,20 @@
     "literals": {
       "patterns": [
         {
-          "include": "#string-literals"
+          "include": "#strings"
         },
         {
-          "include": "#numeric-literals"
+          "include": "#numbers"
         },
         {
-          "include": "#boolean-literals"
+          "include": "#booleans"
+        },
+        {
+          "include": "#kinds"
         }
       ]
     },
-    "string-literals": {
+    "strings": {
       "name": "string.quoted.double.aeon",
       "begin": "\"",
       "end": "\"",
@@ -96,7 +69,7 @@
         }
       ]
     },
-    "numeric-literals": {
+    "numbers": {
       "patterns": [
         {
           "name": "constant.numeric.float.aeon",
@@ -108,7 +81,7 @@
         }
       ]
     },
-    "boolean-literals": {
+    "booleans": {
       "patterns": [
         {
           "name": "constant.language.boolean.aeon",
@@ -116,26 +89,35 @@
         }
       ]
     },
-    "function-declarations": {
+    "kinds": {
       "patterns": [
         {
-          "include": "#native-functions"
+          "name": "constant.language.kind.base.aeon",
+          "match": "\\bB\\b"
         },
         {
-          "include": "#lambda-functions"
-        },
-        {
-          "include": "#kind-functions"
-        },
-        {
-          "include": "#standard-functions"
+          "name": "constant.language.kind.star.aeon",
+          "match": "\\b*\\b"
         }
       ]
     },
-    "native-functions": {
+    "functions": {
       "patterns": [
         {
-          "name": "meta.function.native.aeon",
+          "include": "#nativeFunctions"
+        },
+        {
+          "include": "#lambdaFunctions"
+        },
+        {
+          "include": "#kindFunctions"
+        }
+      ]
+    },
+    "nativeFunctions": {
+      "patterns": [
+        {
+          "name": "meta.embedded.python.aeon",
           "begin": "(native)\\s+\"",
           "end": "\"",
           "captures": {
@@ -151,7 +133,7 @@
           ]
         },
         {
-          "name": "meta.import.native.aeon",
+          "name": "meta.native.import.aeon",
           "begin": "(native_import)\\s+\"",
           "end": "\"",
           "beginCaptures": {
@@ -163,75 +145,43 @@
         }
       ]
     },
-    "lambda-functions": {
+    "lambdaFunctions": {
       "patterns": [
         {
           "match": "(\\\\)\\s*([a-zA-Z0-9_]+)",
           "captures": {
             "1": {
-              "name": "keyword.operator.lambda.aeon"
+              "name": "keyword.operator.lambda.symbol.aeon"
             },
             "2": {
-              "name": "variable.parameter.lambda.aeon"
+              "name": "variable.parameter.aeon"
             }
           }
         }
       ]
     },
-    "kind-functions": {
+    "kindFunctions": {
       "patterns": [
         {
           "match": "(Λ)\\s*([a-z][a-zA-Z0-9_]*)",
           "captures": {
             "1": {
-              "name": "keyword.operator.kind.lambda.aeon"
+              "name": "keyword.operator.kind.lambda.symbol.aeon"
             },
             "2": {
-              "name": "variable.parameter.kind.aeon"
+              "name": "kind.parameter.function.lambda.aeon"
             }
           }
         }
       ]
     },
-    "standard-functions": {
+    "keywords": {
       "patterns": [
         {
-          "match": "\\b(def)\\s+([a-zA-Z0-9_]+)\\b",
-          "captures": {
-            "1": {
-              "name": "keyword.declaration.function.aeon"
-            },
-            "2": {
-              "name": "entity.name.function.aeon"
-            }
-          }
-        }
-      ]
-    },
-    "function-calls": {
-      "match": "\\b[a-z][a-zA-Z0-9_]*\\b",
-      "name": "entity.name.function.aeon"
-    },
-    "type-declarations": {
-      "patterns": [
+          "include": "#imports"
+        },
         {
-          "match": "\\b(type)\\s+([A-Z][a-zA-Z0-9_]*)\\b",
-          "captures": {
-            "1": {
-              "name": "keyword.declaration.type.aeon"
-            },
-            "2": {
-              "name": "entity.name.type.aeon"
-            }
-          }
-        }
-      ]
-    },
-    "type-references": {
-      "patterns": [
-        {
-          "name": "storage.type.built-in.aeon",
-          "match": "\\b(Unit|Int|Float|String|Bool)\\b"
+          "include": "#controlKeywords"
         }
       ]
     },
@@ -244,10 +194,10 @@
               "name": "keyword.control.import.aeon"
             },
             "2": {
-              "name": "entity.name.function.imported.aeon"
+              "name": "entity.name.function.aeon"
             },
             "3": {
-              "name": "string.quoted.module.aeon"
+              "name": "entity.name.namespace.aeon"
             }
           }
         },
@@ -258,14 +208,18 @@
               "name": "keyword.control.import.aeon"
             },
             "2": {
-              "name": "string.quoted.module.aeon"
+              "name": "entity.name.namespace.aeon"
             }
           }
         }
       ]
     },
-    "keywords": {
+    "controlKeywords": {
       "patterns": [
+        {
+          "match": "\\bin\\b",
+          "name": "keyword.control.aeon"
+        },
         {
           "match": "\\b(let)\\s+([a-zA-Z0-9_]+)\\b",
           "captures": {
@@ -273,7 +227,29 @@
               "name": "keyword.declaration.let.aeon"
             },
             "2": {
-              "name": "variable.other.declaration.aeon"
+              "name": "variable.declaration.aeon"
+            }
+          }
+        },
+        {
+          "match": "\\b(def)\\s+([a-zA-Z0-9_]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.function.aeon"
+            },
+            "2": {
+              "name": "entity.name.function.aeon"
+            }
+          }
+        },
+        {
+          "match": "\\b(type)\\s+([a-zA-Z0-9_]+)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.aeon"
+            },
+            "2": {
+              "name": "entity.name.type.aeon"
             }
           }
         },
@@ -281,10 +257,10 @@
           "match": "\\b(@)([a-zA-Z0-9_]+)\\b",
           "captures": {
             "1": {
-              "name": "keyword.decorator.aeon"
+              "name": "entity.name.tag.aeon"
             },
             "2": {
-              "name": "entity.name.decorator.aeon"
+              "name": "entity.name.macro.aeon"
             }
           }
         },
@@ -292,27 +268,27 @@
           "match": "\\b(forall)\\s+([a-zA-Z0-9_]+)\\b",
           "captures": {
             "1": {
-              "name": "keyword.other.quantifier.aeon"
+              "name": "keyword.universal.quantifier.aeon"
             },
             "2": {
-              "name": "entity.name.type.parameter.aeon"
+              "name": "entity.polymorphic.type.macro.aeon"
             }
           }
         },
         {
-          "name": "keyword.control.aeon",
-          "match": "\\b(where|in|if|then|else)\\b"
+          "match": "\\b(if|then|else)\\b",
+          "name": "keyword.control.conditional.aeon"
         }
       ]
     },
     "operators": {
       "patterns": [
         {
-          "name": "keyword.operator.arrow.function.aeon",
+          "name": "keyword.operator.lambda.function.arrow.aeon",
           "match": "->"
         },
         {
-          "name": "keyword.operator.arrow.kind.aeon",
+          "name": "keyword.operator.lambda.kind.arrow.aeon",
           "match": "=>"
         },
         {
@@ -320,7 +296,7 @@
           "match": "="
         },
         {
-          "name": "punctuation.separator.type.aeon",
+          "name": "punctuation.separator.type",
           "match": ":"
         },
         {
@@ -342,6 +318,14 @@
         {
           "name": "punctuation.terminator.statement.aeon",
           "match": ";"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.primitive.aeon",
+          "match": "\\b(Unit|Int|Float|String|Bool)\\b"
         },
         {
           "name": "keyword.operator.pipe.aeon",
