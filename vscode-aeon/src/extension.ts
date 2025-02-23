@@ -12,124 +12,119 @@ import { workspace } from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
-    Executable
-} from 'vscode-languageclient';
+    Executable,
+} from 'vscode-languageclient/node';
+import * as path from 'path'
+import * as fs from 'fs'
 
 let client: LanguageClient;
 
-interface Settings {
-    python: {
-        executable: string;
-    };
-}
+const AEON_DIR = path.join(__dirname, 'aeon');
+const VENV_PYTHON = path.join(__dirname, '.venv', 'bin', 'python');
 
-/**
- * Check if our egg is already installed on this python.
- *
- * @param python path of the python interpreter
- */
-function isExtensionInstalled(python: string): boolean {
+function isPythonAvailable(pythonPath: string): boolean {
     try {
-        child_process.execFileSync(python, ['-m', 'aeon', '-lsp']); //TODO add a flag to verify if everything looks good
-        return true;
-    } catch {
-        return false;
-    }
-}
-/**
- * Check if python version looks supported.
- *
- * @param python path of the python interpreter
- */
-function isPythonVersionCompatible(python: string): boolean {
-    try {
-        child_process.execFileSync(python, [
-            '-c',
-            'import sys; sys.exit(sys.version_info[:2] < (3, 6))'
-        ]);
+        child_process.execFileSync(pythonPath, ['--version'],{ stdio: 'ignore' });
         return true;
     } catch {
         return false;
     }
 }
 
-async function shortDelay() {
-    return new Promise(resolve => setTimeout(resolve, 1000));
-}
-
-export async function activate() {
-    const executablePath: any = vscode.workspace
-        .getConfiguration()
-        .get('aeon.python.executable');
-
-    const settings: Settings = {
-        python: {
-            executable: executablePath
-        }
-    };
-
-    vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('aeon.python.executable')) {
-            void vscode.window.showInformationMessage(
-                'New Python selected (' + executablePath + '): needs application restart'
-            );
-        }
-    });
-
+function makeLanguageServerClient() {
     const serverExecutable: Executable = {
-        command: settings.python.executable,
-        args: ['-m', 'aeon', '-lsp'].concat(
-            vscode.workspace.getConfiguration().get('aeon.language.server.arguments') || []
-        )
+        command: VENV_PYTHON,
+        args: ['-m', 'aeon','-lsp']
     };
 
-    // Options to control the language client
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ language: 'aeon' }],
         synchronize: {
-            fileEvents: workspace.createFileSystemWatcher('**/*.ae')
-        }
+            fileEvents: workspace.createFileSystemWatcher('**/*.ae'),
+        },
     };
 
-    if (!isPythonVersionCompatible(settings.python.executable)) {
+    return new LanguageClient(
+        'aeon',
+        'Aeon',
+        serverExecutable,
+        clientOptions
+    );
+}
+
+async function shortDelay() {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+}
+
+function isUvAvailable(): boolean {
+    try {
+        child_process.execSync('uv --help', { stdio: 'ignore' });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function setupEnvironment(outputChannel: vscode.OutputChannel) {
+    try {
+        if (!fs.existsSync(AEON_DIR)) {
+            outputChannel.appendLine('cloning aeon repository...');
+            child_process.execSync(`git clone https://github.com/alcides/aeon.git "${AEON_DIR}"`, {
+                stdio: 'inherit'
+            });
+        }
+
+        child_process.execSync('git checkout lsp-mode', { // needed for now
+            cwd: AEON_DIR,
+            stdio: 'inherit'
+        });
+
+        if (!fs.existsSync(VENV_PYTHON)) {
+            outputChannel.appendLine('creating virtual environment...');
+            child_process.execSync('uv venv .venv', {
+                cwd: AEON_DIR,
+                stdio: 'inherit'
+            });
+        }
+
+        outputChannel.appendLine('installing Aeon...');
+        child_process.execSync('source .venv/bin/activate', {
+            cwd: AEON_DIR,
+            stdio: 'inherit'
+        });
+
+        child_process.execSync('pip install -e .', {
+            cwd: AEON_DIR,
+            stdio: 'inherit'
+        });
+
+    } catch (error) {
+        outputChannel.appendLine(`setup failed: ${error instanceof Error ? error.message : error}`);
+        throw error;
+    }
+}
+
+export async function activate(context : vscode.ExtensionContext) {
+    const config = vscode.workspace.getConfiguration('aeon');
+    const pythonPath = config.get('python.executable') as string;
+    const outputChannel = vscode.window.createOutputChannel('aeon diagnostics');
+    outputChannel.show(true);
+
+    try {
+        if (!isPythonAvailable(pythonPath)) throw Error(`python not found at ${pythonPath}`);
+        if (!isUvAvailable()) throw Error('uv not installed');
+
+        await setupEnvironment(outputChannel);
+        client = makeLanguageServerClient();
+        await client.start();
+        return true;
+    } catch (error) {
+        outputChannel.appendLine(`activation failed: ${error instanceof Error ? error.message : error}`);
         void vscode.window.showErrorMessage(
-            'Aeon extension: Invalid Python version, needs Python >= 3.6'
+            'aeon setup failed. Check the output channel.'
         );
         return false;
     }
-
-    // Check if we are properly installed on the selected Python
-    let installationOK = isExtensionInstalled(settings.python.executable);
-    if (!installationOK) {
-        const answer = await vscode.window.showQuickPick(['Yes', 'No'], {
-            placeHolder: `Aeon language server is not installed on ${settings.python.executable}. Install now?`
-        });
-
-        if (answer !== 'Yes') {
-            return false;
-        }
-
-        const terminal = vscode.window.createTerminal('Aeon');
-        terminal.show(false);
-        terminal.sendText('# Installing Aeon language server on selected Python\n');
-        terminal.sendText(`${settings.python.executable} -m pip install --user -e "${executablePath}"`);
-
-        for (let retries = 0; retries < 5; retries++) {
-            await shortDelay();
-            installationOK = isExtensionInstalled(settings.python.executable);
-            if (installationOK) break;
-        }
-
-        if (!installationOK) {
-            void vscode.window.showErrorMessage('Aeon extension: Could not install language server');
-            return false;
-        }
-
-        void vscode.window.showInformationMessage('Aeon extension: Installed language server');
-    }
-
-    client = new LanguageClient('aeon', 'Aeon Language Server', serverExecutable, clientOptions);
-    client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {
