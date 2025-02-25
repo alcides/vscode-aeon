@@ -5,7 +5,7 @@
     "version": "0.0.6",
     "publisher": "AlcidesFonseca",
     "engines": {
-        "vscode": "^1.97.0"
+        "vscode": "^1.75.0"
     },
     "categories": [
         "Programming Languages"
@@ -75,23 +75,22 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.13.0",
-        "@stylistic/eslint-plugin": "^3.1.0",
-        "@types/node": "^22",
-        "@types/vscode": "^1.80.0",
-        "@vscode/vsce": "^3.2.2",
+        "@stylistic/eslint-plugin": "^2.9.0",
+        "@types/node": "^20",
+        "@types/vscode": "^1.73.0",
         "eslint": "^9.13.0",
-        "ovsx": "^0.9.1",
         "typescript": "^5.7.2",
         "typescript-eslint": "^8.16.0",
-        "vscode-languageclient": "~8.0.0"
+        "@vscode/vsce": "^2.21.1",
+        "ovsx": "^0.9.1"
     },
     "icon": "images/lean_logo.png",
     "dependencies": {
-        "@vscode-elements/elements": "^1.7.1",
+        "yarn": "^1.22.22",
         "@vscode/codicons": "^0.0.36",
-        "semver": "^7.6.0",
-        "vscode-languageclient": "~8.0.0",
-        "yarn": "^1.22.22"
+        "@vscode-elements/elements": "^1.7.1",
+        "vscode-languageclient": "^9.0.1",
+        "semver": "^7.6.0"
     },
     "__metadata": {
         "id": "aeon-lang",
