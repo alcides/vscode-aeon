@@ -13,7 +13,7 @@
         "vscode-aeon"
     ],
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^7.9.0",
+        "@typescript-eslint/eslint-plugin": "^8.32.1",
         "@typescript-eslint/parser": "^7.9.0",
         "eslint": "^8.45.0",
         "eslint-config-prettier": "^10.0.1",
