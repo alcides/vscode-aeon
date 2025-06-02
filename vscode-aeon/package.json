@@ -75,7 +75,7 @@
         "typescript": "^5.7.2",
         "typescript-eslint": "^8.16.0",
         "@vscode/vsce": "^3.2.2",
-        "ovsx": "^0.9.1"
+        "ovsx": "^0.10.3"
     },
     "icon": "images/aeon_logo.png",
     "dependencies": {
