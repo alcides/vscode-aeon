@@ -77,7 +77,7 @@
         "@vscode/vsce": "^3.2.2",
         "ovsx": "^0.9.1"
     },
-    "icon": "images/lean_logo.png",
+    "icon": "images/aeon_logo.png",
     "dependencies": {
         "yarn": "^1.22.22",
         "@vscode/codicons": "^0.0.36",
