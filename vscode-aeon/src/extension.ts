@@ -104,23 +104,24 @@ async function execCommand(command: string, cwd: string, outputChannel: vscode.O
     })
 }
 
-function handleNotInstalledErr(programName: string, downloadUrl: string) {
-    vscode.window.showInformationMessage(
+async function handleNotInstalledErr(programName: string, downloadUrl: string) {
+    const selection = await vscode.window.showInformationMessage(
         `${programName} is not installed or could not be found. Would you like to install it again?`,
         'Install', 'Cancel'
-    ).then(selection => {
-        if (selection === 'Install') {
-            vscode.env.openExternal(vscode.Uri.parse(downloadUrl))
-            vscode.window.showInformationMessage(
-                `After installing ${programName}, restart VSCode to continue.`,
-                'Restart VS Code'
-            ).then(restartSelection => {
-                if (restartSelection === 'Restart VS Code') {
-                    vscode.commands.executeCommand('workbench.action.reloadWindow')
-                }
-            })
+    );
+
+    if (selection === 'Install') {
+        await vscode.env.openExternal(vscode.Uri.parse(downloadUrl));
+
+        const restartSelection = await vscode.window.showInformationMessage(
+            `After installing ${programName}, restart VSCode to continue.`,
+            'Restart VS Code'
+        );
+
+        if (restartSelection === 'Restart VS Code') {
+            void vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
-    })
+    }
 }
 
 async function setupEnvironment(outputChannel: vscode.OutputChannel,
@@ -182,17 +183,17 @@ async function setupEnvironment(outputChannel: vscode.OutputChannel,
     } catch (error) {
         const err = error as Error
         if (err instanceof PythonNotInstalledError) {
-            handleNotInstalledErr('Python', 'https://www.python.org/downloads/')
+            await handleNotInstalledErr('Python', 'https://www.python.org/downloads/')
         } else if (err instanceof GitNotInstalledError) {
-            handleNotInstalledErr('Git', 'https://git-scm.com/downloads')
+            await handleNotInstalledErr('Git', 'https://git-scm.com/downloads')
         } else if (err instanceof GitCloneError) {
-            vscode.window.showErrorMessage('Failed to clone the Aeon repository.')
+            void vscode.window.showErrorMessage('Failed to clone the Aeon repository.')
         } else if (err instanceof VenvExecutableError) {
-            vscode.window.showErrorMessage('Failed to install dependencies with VENV')
+            void vscode.window.showErrorMessage('Failed to install dependencies with VENV')
         } else if (err instanceof AeonNotInstalledError) {
-            vscode.window.showErrorMessage('Failed to install Aeon')
+            void vscode.window.showErrorMessage('Failed to install Aeon')
         } else {
-            vscode.window.showErrorMessage(`Unexpected setup error: ${err.message}`)
+            void vscode.window.showErrorMessage(`Unexpected setup error: ${err.message}`)
         }
         throw err
     }
