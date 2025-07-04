@@ -212,7 +212,6 @@ export async function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('Aeon language server started successfully')
         return true
     } catch (error) {
-        void vscode.window.showErrorMessage('Aeon setup failed')
         return false
     }
 }
