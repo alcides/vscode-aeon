@@ -17,8 +17,12 @@ import {LanguageClient, Executable} from 'vscode-languageclient/node'
 let client: LanguageClient
 
 const AEON_DIR = 'aeon'
+
 const VENV_DIR = 'venv'
 const VENV_PYTHON = path.join(VENV_DIR, process.platform === 'win32' ? 'Scripts' : 'bin', 'python')
+
+const USE_LOCAL_INTERPRETER = false;
+const LOCAL_INTERPRETER_PATH = '/my_folder/';
 
 class AeonNotInstalledError extends Error {
 }
@@ -122,7 +126,9 @@ function handleNotInstalledErr(programName: string, downloadUrl: string) {
 async function setupEnvironment(outputChannel: vscode.OutputChannel,
                                 pythonPath: string): Promise<void> {
     const extensionPath = __dirname
-    const aeonPath = path.join(extensionPath, AEON_DIR)
+    const aeonPath = USE_LOCAL_INTERPRETER && LOCAL_INTERPRETER_PATH
+        ? LOCAL_INTERPRETER_PATH
+        : path.join(extensionPath, AEON_DIR)
     const venvPythonPath = path.join(extensionPath, VENV_PYTHON)
 
     try {
@@ -133,24 +139,26 @@ async function setupEnvironment(outputChannel: vscode.OutputChannel,
             throw new GitNotInstalledError()
         }
 
-        if (fs.existsSync(aeonPath)) {
-            await execCommand('git pull origin lsp-mode',
+        if (!USE_LOCAL_INTERPRETER) {
+            if (fs.existsSync(aeonPath)) {
+                await execCommand('git pull origin lsp-mode-sync',
+                    aeonPath,
+                    outputChannel,
+                    new GitCloneError())
+            } else {
+                await execCommand(
+                    `git clone https://github.com/alcides/aeon.git "${aeonPath}"`,
+                    extensionPath,
+                    outputChannel,
+                    new GitCloneError()
+                )
+            }
+
+            await execCommand('git checkout lsp-mode-sync',
                 aeonPath,
                 outputChannel,
                 new GitCloneError())
-        } else {
-            await execCommand(
-                `git clone https://github.com/alcides/aeon.git "${aeonPath}"`,
-                extensionPath,
-                outputChannel,
-                new GitCloneError()
-            )
         }
-
-        await execCommand('git checkout lsp-mode',
-            aeonPath,
-            outputChannel,
-            new GitCloneError())
 
         await execCommand(
             `python3 -m venv --clear "${VENV_DIR}"`,
