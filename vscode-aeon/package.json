@@ -18,9 +18,6 @@
         "url": "https://github.com/alcides/vscode-aeon.git"
     },
     "homepage": "https://github.com/alcides/aeon",
-    "activationEvents": [
-        "onLanguage:aeon"
-    ],
     "main": "./out/extension.js",
     "contributes": {
         "configuration": {
