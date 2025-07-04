@@ -64,9 +64,9 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
+        "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
         "lint": "eslint",
-        "watch": "tsc -watch -p ./",
+        "watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
         "package": "vsce package",
         "packagePreRelease": "vsce package --pre-release"
     },
@@ -76,6 +76,7 @@
         "@types/node": "^20",
         "@types/vscode": "^1.73.0",
         "@vscode/vsce": "^2.21.1",
+        "esbuild": "^0.25.5",
         "eslint": "^9.13.0",
         "ovsx": "^0.9.1",
         "typescript": "^5.7.2",
