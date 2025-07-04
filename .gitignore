@@ -12,3 +12,6 @@ node_modules/
 doit.cmd
 .rollup.cache/
 .eslintcache
+
+## Env
+vscode-aeon/.env
