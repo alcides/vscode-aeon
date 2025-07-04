@@ -11,7 +11,8 @@ import * as child_process from 'child_process'
 import * as path from 'path'
 import * as fs from 'fs'
 
-import { Executable, LanguageClient, LanguageClientOptions } from 'vscode-languageclient/node'
+import {LanguageClientOptions} from 'vscode-languageclient'
+import {LanguageClient, Executable} from 'vscode-languageclient/node'
 
 let client: LanguageClient
 
