@@ -40,15 +40,12 @@
             {
                 "command": "aeon.helloWorld",
                 "title": "Hello World"
-            }
-        ],
-        "languages": [
+            },
             {
-                "id": "aeon",
-                "configuration": "./language-configuration.json",
-                "extensions": [
-                    ".ae"
-                ]
+                "command": "aeon.showSetupGuide",
+                "title": "Docs : Show Setup Guide",
+                "description" : "Show Aeon setup guide",
+                "category": "Aeon"
             }
         ],
         "grammars": [
@@ -60,8 +57,108 @@
                     "source.python": "python"
                 }
             }
+        ],
+        "languages": [
+            {
+                "id": "aeon",
+                "configuration": "./language-configuration.json",
+                "extensions": [
+                    ".ae"
+                ]
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "aeon.showSetupGuide"
+                }
+            ]
+        },
+        "semanticTokenScopes": [
+            {
+                "scopes": {
+                    "keyword": [
+                        "keyword.other"
+                    ]
+                }
+            }
+        ],
+        "walkthroughs": [
+            {
+                "id": "aeon.welcome",
+                "title": "Aeon Setup",
+                "description": "Getting started with Aeon\n",
+                "steps": [
+                    {
+                        "id": "aeon.welcome.openSetupGuide",
+                        "title": "Re-Open Setup Guide",
+                        "description": "This guide can always be re-opened by running the command 'Aeon : Docs : Show Setup Guide'.",
+                        "media": {
+                            "image": "media/openguide.png",
+                            "altText": "Click on the Top menu bar, select 'Show and Run Commands >', then 'Aeon : Docs : Show Setup Guide'"
+                        }
+                    },
+                    {
+                        "id": "aeon.welcome.documentation",
+                        "title": "Documentation",
+                        "description": "Learn using Aeon with the resources on the right.",
+                        "media": {
+                            "markdown": "./media/guide-documentation.md"
+                        }
+                    },
+                    {
+                        "id": "aeon.welcome.installDeps.linux",
+                        "title": "Install Required Dependencies",
+                        "description": "Install Git and curl using your package manager.",
+                        "media": {
+                            "markdown": "./media/guide-installDeps-linux.md"
+                        },
+                        "when": "isLinux"
+                    },
+                    {
+                        "id": "aeon.welcome.installDeps.mac",
+                        "title": "Install Required Dependencies",
+                        "description": "Install Homebrew, Git and curl.",
+                        "media": {
+                            "markdown": "./media/guide-installDeps-mac.md"
+                        },
+                        "when": "isMac"
+                    },
+                    {
+                        "id": "aeon.welcome.installDeps.windows",
+                        "title": "Install Required Dependencies",
+                        "description": "Install Git.",
+                        "media": {
+                            "markdown": "./media/guide-installDeps-windows.md"
+                        },
+                        "when": "isWindows"
+                    },
+
+                    {
+                        "id": "aeon.welcome.installUv.unix",
+                        "title": "Install uv Python Environment Manager",
+                        "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:python.setup.installUv)",
+                        "media": {
+                            "markdown": "./media/guide-installUv-unix.md"
+                        },
+                        "when": "isLinux || isMac"
+                    },
+                    {
+                        "id": "aeon.welcome.installUv.windows",
+                        "title": "Install uv Python Environment Manager",
+                        "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:python.setup.installUv)",
+                        "media": {
+                            "markdown": "./media/guide-installUv-windows.md"
+                        },
+                        "when": "isWindows"
+                    }
+                ]
+            }
         ]
     },
+    "activationEvents": [
+        "onViewWelcome:aeon.welcome"
+    ],
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
