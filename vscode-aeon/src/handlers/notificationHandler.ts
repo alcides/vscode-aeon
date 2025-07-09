@@ -1,3 +1,4 @@
+import * as vscode from 'vscode'
 import { MessageOptions, window } from 'vscode'
 
 export class NotificationHandler {
@@ -24,5 +25,21 @@ export class NotificationHandler {
 
     async showWarning(message: string) {
         await window.showWarningMessage(message)
+    }
+
+    async runWithProgress<T>(
+        title: string,
+        task: () => Promise<T>,
+        location: vscode.ProgressLocation = vscode.ProgressLocation.Notification,
+        cancellable = false,
+    ): Promise<T> {
+        return vscode.window.withProgress(
+            {
+                location,
+                title,
+                cancellable,
+            },
+            async () => await task(),
+        )
     }
 }
