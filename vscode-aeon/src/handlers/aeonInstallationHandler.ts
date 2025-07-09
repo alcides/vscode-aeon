@@ -2,6 +2,8 @@ import { Disposable, OutputChannel } from 'vscode'
 import { NotificationHandler } from './notificationHandler'
 import { Platform, TerminalHandler } from './terminalHandler'
 import { CommandResult } from '../utils/commandResult'
+import * as os from 'node:os'
+import * as path from 'path'
 
 export class AeonInstallationHandler implements Disposable {
     private editorOutputChannel: OutputChannel
@@ -18,8 +20,10 @@ export class AeonInstallationHandler implements Disposable {
 
     async checkUvInstallation(): Promise<CommandResult> {
         const platform = this.terminalHandler.getPlatform();
-        const command = platform === Platform.Windows ? 'where uv' : 'which uv';
-        return await this.terminalHandler.runCommand(command)
+        const command = platform === Platform.Windows
+            ? 'powershell -Command "(Get-Command uv | Select-Object -First 1).Source"'
+            : 'which uv';
+        return await this.terminalHandler.runCommand(command);
     }
 
     async displayInstallUvPrompt() {
@@ -32,7 +36,7 @@ export class AeonInstallationHandler implements Disposable {
             Install: async () => {
                 const installUvResult = await this.installUv()
                 const resultMessage = installUvResult.getMessage(
-                    'Success Installing Uv',
+                    'Successfully installed Uv',
                     'Error Installing Uv'
                 )
                 if (installUvResult.success) {
@@ -102,7 +106,7 @@ export class AeonInstallationHandler implements Disposable {
 
     private async installUv() {
         const command = this.terminalHandler.getPlatform() === Platform.Windows
-            ? 'irm https://astral.sh/uv/install.ps1 | iex\n'
+            ? 'powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"\n'
             : 'curl -Ls https://astral.sh/uv/install.sh | bash\n';
 
         return await this.terminalHandler.runCommand(command);
@@ -117,10 +121,11 @@ export class AeonInstallationHandler implements Disposable {
     private async uninstallUv() {
         const platform = this.terminalHandler.getPlatform();
 
-        const command= platform === Platform.Windows
-            ? `Remove-Item -Force "$env:USERPROFILE\\.local\\bin\\uv.exe";
-            Remove-Item -Force "$env:USERPROFILE\\.local\\bin\\uvx.exe"`
-            : 'rm -f ~/.local/bin/uv ~/.local/bin/uvx';
+        const command = platform === Platform.Windows
+            ? 'powershell -ExecutionPolicy ByPass -c ' +
+            '"Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
+            'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
+            : 'rm -f $(which uv) $(which uvx)';
 
         return await this.terminalHandler.runCommand(command);
     }
