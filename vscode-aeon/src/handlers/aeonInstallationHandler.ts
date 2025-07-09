@@ -53,7 +53,13 @@ export class AeonInstallationHandler implements Disposable {
             return;
         }
 
-        await this.notificationHandler.showChoice('A new version of Uv is available. Would you like to update it now?', {
+        const isUvExternallyManaged = await this.isUvExternallyManaged(uvCheckResult)
+        if (isUvExternallyManaged) {
+            await this.notificationHandler.showError('Uv is externally managed. Update it through your package manager.');
+            return;
+        }
+
+        await this.notificationHandler.showChoice('Would you like to update your Uv installation?', {
             Update: async () => {
                 const updateResult = await this.updateUv();
                 const resultMessage = updateResult.getMessage(
@@ -117,5 +123,19 @@ export class AeonInstallationHandler implements Disposable {
             : 'rm -f ~/.local/bin/uv ~/.local/bin/uvx';
 
         return await this.terminalHandler.runCommand(command);
+    }
+
+    private getExpectedUvPath(): string {
+        const homeDir = os.homedir();
+        return this.terminalHandler.getPlatform() === Platform.Windows
+            ? path.join(homeDir, '.local', 'bin', 'uv.exe')
+            : path.join(homeDir, '.local', 'bin', 'uv');
+    }
+
+    private async isUvExternallyManaged(checkUvInstallationResult : CommandResult) : Promise<boolean> {
+        const uvPathString = checkUvInstallationResult.stdout.trim().split('/\r?\n')[0]
+        const expectedUvPath = this.getExpectedUvPath()
+
+        return uvPathString.toLowerCase() !== expectedUvPath.toLowerCase()
     }
 }
