@@ -5,14 +5,15 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
 
  * ------------------------------------------------------------------------------------------ */
+import * as child_process from 'child_process'
+import * as fs from 'fs'
+import * as path from 'node:path'
 import * as vscode from 'vscode'
 import { workspace } from 'vscode'
-import * as child_process from 'child_process'
-import * as path from 'path'
-import * as fs from 'fs'
 
-import {LanguageClientOptions} from 'vscode-languageclient'
-import {LanguageClient, Executable} from 'vscode-languageclient/node'
+import { LanguageClientOptions } from 'vscode-languageclient'
+import { Executable, LanguageClient } from 'vscode-languageclient/node'
+import { activateBackgroundServices } from './utils/handlerUtils'
 
 let client: LanguageClient
 
@@ -21,23 +22,18 @@ const AEON_DIR = 'aeon'
 const VENV_DIR = 'venv'
 const VENV_PYTHON = path.join(VENV_DIR, process.platform === 'win32' ? 'Scripts' : 'bin', 'python')
 
-const USE_LOCAL_INTERPRETER = false;
-const LOCAL_INTERPRETER_PATH = '/my_folder/';
+const USE_LOCAL_INTERPRETER = false
+const LOCAL_INTERPRETER_PATH = '/my_folder/'
 
-class AeonNotInstalledError extends Error {
-}
+class AeonNotInstalledError extends Error {}
 
-class GitCloneError extends Error {
-}
+class GitCloneError extends Error {}
 
-class GitNotInstalledError extends Error {
-}
+class GitNotInstalledError extends Error {}
 
-class PythonNotInstalledError extends Error {
-}
+class PythonNotInstalledError extends Error {}
 
-class VenvExecutableError extends Error {
-}
+class VenvExecutableError extends Error {}
 
 function isPythonInstalled(pythonPath: string): boolean {
     try {
@@ -69,30 +65,29 @@ function isAeonInstalled(pythonPath: string): boolean {
 function makeLanguageServerClient() {
     const serverExecutable: Executable = {
         command: path.join(__dirname, VENV_PYTHON),
-        args: ['-m', 'aeon', '-lsp']
+        args: ['-m', 'aeon', '-lsp'],
     }
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ language: 'aeon' }],
-        synchronize: { fileEvents: workspace.createFileSystemWatcher('**/*.ae') }
+        synchronize: { fileEvents: workspace.createFileSystemWatcher('**/*.ae') },
     }
 
-    return new LanguageClient(
-        'aeon',
-        'Aeon',
-        serverExecutable,
-        clientOptions
-    )
+    return new LanguageClient('aeon', 'Aeon', serverExecutable, clientOptions)
 }
 
-async function execCommand(command: string, cwd: string, outputChannel: vscode.OutputChannel, customError: Error): Promise<void> {
+async function execCommand(
+    command: string,
+    cwd: string,
+    outputChannel: vscode.OutputChannel,
+    customError: Error,
+): Promise<void> {
     return new Promise((resolve, reject) => {
         const child = child_process.spawn(command, { cwd, shell: true })
 
-        child.stdout?.on('data', (data) => outputChannel.appendLine(data.toString()))
-        child.stderr?.on('data', (data) => outputChannel.appendLine(data.toString()))
+        child.stdout?.on('data', data => outputChannel.appendLine(data.toString()))
 
-        child.on('close', (code) => {
+        child.on('close', code => {
             if (code !== 0) {
                 reject(customError)
             } else {
@@ -107,79 +102,81 @@ async function execCommand(command: string, cwd: string, outputChannel: vscode.O
 async function handleNotInstalledErr(programName: string, downloadUrl: string) {
     const selection = await vscode.window.showInformationMessage(
         `${programName} is not installed or could not be found. Would you like to install it again?`,
-        'Install', 'Cancel'
-    );
+        'Install',
+        'Cancel',
+    )
 
     if (selection === 'Install') {
-        await vscode.env.openExternal(vscode.Uri.parse(downloadUrl));
+        await vscode.env.openExternal(vscode.Uri.parse(downloadUrl))
 
         const restartSelection = await vscode.window.showInformationMessage(
             `After installing ${programName}, restart VSCode to continue.`,
-            'Restart VS Code'
-        );
+            'Restart VS Code',
+        )
 
         if (restartSelection === 'Restart VS Code') {
-            void vscode.commands.executeCommand('workbench.action.reloadWindow');
+            void vscode.commands.executeCommand('workbench.action.reloadWindow')
         }
     }
 }
 
-async function setupEnvironment(outputChannel: vscode.OutputChannel,
-                                pythonPath: string): Promise<void> {
+async function setupEnvironment(outputChannel: vscode.OutputChannel, pythonPath: string): Promise<void> {
     const extensionPath = __dirname
-    const aeonPath = USE_LOCAL_INTERPRETER && LOCAL_INTERPRETER_PATH
-        ? LOCAL_INTERPRETER_PATH
-        : path.join(extensionPath, AEON_DIR)
+    const aeonPath =
+        USE_LOCAL_INTERPRETER && LOCAL_INTERPRETER_PATH ? LOCAL_INTERPRETER_PATH : path.join(extensionPath, AEON_DIR)
     const venvPythonPath = path.join(extensionPath, VENV_PYTHON)
 
-    try {
-        if (!isPythonInstalled(pythonPath)) {
-            throw new PythonNotInstalledError()
-        }
-        if (!isGitInstalled()) {
-            throw new GitNotInstalledError()
-        }
+    if (!isPythonInstalled(pythonPath)) {
+        throw new PythonNotInstalledError()
+    }
+    if (!isGitInstalled()) {
+        throw new GitNotInstalledError()
+    }
 
-        if (!USE_LOCAL_INTERPRETER) {
-            if (fs.existsSync(aeonPath)) {
-                await execCommand('git pull origin lsp-mode-sync',
-                    aeonPath,
-                    outputChannel,
-                    new GitCloneError())
-            } else {
-                await execCommand(
-                    `git clone https://github.com/alcides/aeon.git "${aeonPath}"`,
-                    extensionPath,
-                    outputChannel,
-                    new GitCloneError()
-                )
-            }
-
-            await execCommand('git checkout lsp-mode-sync',
-                aeonPath,
+    if (!USE_LOCAL_INTERPRETER) {
+        if (fs.existsSync(aeonPath)) {
+            await execCommand('git pull origin lsp-mode-sync', aeonPath, outputChannel, new GitCloneError())
+        } else {
+            await execCommand(
+                `git clone https://github.com/alcides/aeon.git "${aeonPath}"`,
+                extensionPath,
                 outputChannel,
-                new GitCloneError())
+                new GitCloneError(),
+            )
         }
 
-        await execCommand(
-            `python3 -m venv --clear "${VENV_DIR}"`,
-            extensionPath,
-            outputChannel,
-            new PythonNotInstalledError()
-        )
+        await execCommand('git checkout lsp-mode-sync', aeonPath, outputChannel, new GitCloneError())
+    }
 
-        await execCommand(
-            `"${venvPythonPath}" -m pip install -e .`,
-            aeonPath,
-            outputChannel,
-            new VenvExecutableError()
-        )
+    await execCommand(
+        `python3 -m venv --clear "${VENV_DIR}"`,
+        extensionPath,
+        outputChannel,
+        new PythonNotInstalledError(),
+    )
 
-        if (!isAeonInstalled(venvPythonPath)) {
-            throw new AeonNotInstalledError()
-        }
+    await execCommand(`"${venvPythonPath}" -m pip install -e .`, aeonPath, outputChannel, new VenvExecutableError())
 
-        outputChannel.appendLine('setup complete')
+    if (!isAeonInstalled(venvPythonPath)) {
+        throw new AeonNotInstalledError()
+    }
+
+    outputChannel.appendLine('setup complete')
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+    const config = vscode.workspace.getConfiguration('aeon')
+    const pythonPath = config.get('python.executable') as string
+    const outputChannel = vscode.window.createOutputChannel('Aeon Diagnostics')
+    const aeonBackgroundServices = activateBackgroundServices(context)
+    outputChannel.show(true)
+    try {
+        await setupEnvironment(outputChannel, pythonPath)
+        client = makeLanguageServerClient()
+        context.subscriptions.push(client)
+        await client.start()
+        outputChannel.appendLine('Aeon language server started successfully')
+        return true
     } catch (error) {
         const err = error as Error
         if (err instanceof PythonNotInstalledError) {
@@ -195,23 +192,6 @@ async function setupEnvironment(outputChannel: vscode.OutputChannel,
         } else {
             void vscode.window.showErrorMessage(`Unexpected setup error: ${err.message}`)
         }
-        throw err
-    }
-}
-
-export async function activate(context: vscode.ExtensionContext) {
-    const config = vscode.workspace.getConfiguration('aeon')
-    const pythonPath = config.get('python.executable') as string
-    const outputChannel = vscode.window.createOutputChannel('Aeon Diagnostics')
-    outputChannel.show(true)
-    try {
-        await setupEnvironment(outputChannel, pythonPath)
-        client = makeLanguageServerClient()
-        context.subscriptions.push(client)
-        await client.start()
-        outputChannel.appendLine('Aeon language server started successfully')
-        return true
-    } catch (error) {
         return false
     }
 }
