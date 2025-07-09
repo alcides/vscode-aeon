@@ -21,7 +21,7 @@ export class AeonInstallationHandler implements Disposable {
     async checkUvInstallation(): Promise<CommandResult> {
         const platform = this.terminalHandler.getPlatform();
         const command = platform === Platform.Windows
-            ? 'powershell -Command "(Get-Command uv | Select-Object -First 1).Source"'
+            ? 'where /f uv'
             : 'which uv';
         return await this.terminalHandler.runCommand(command);
     }
@@ -115,8 +115,8 @@ export class AeonInstallationHandler implements Disposable {
 
     private async installUv() {
         const command = this.terminalHandler.getPlatform() === Platform.Windows
-            ? 'powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"\n'
-            : 'curl -Ls https://astral.sh/uv/install.sh | bash\n';
+            ? 'powershell -ExecutionPolicy Bypass -c "irm https://astral.sh/uv/install.ps1 | iex"'
+            : 'curl -Ls https://astral.sh/uv/install.sh | bash';
 
         return await this.terminalHandler.runCommand(command);
     }
@@ -131,8 +131,8 @@ export class AeonInstallationHandler implements Disposable {
         const platform = this.terminalHandler.getPlatform();
 
         const command = platform === Platform.Windows
-            ? 'powershell -ExecutionPolicy ByPass -c ' +
-            '"Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
+            ? 'powershell -ExecutionPolicy Bypass -c "' +
+            'Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
             'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
             : 'rm -f $(which uv) $(which uvx)';
 
@@ -147,8 +147,12 @@ export class AeonInstallationHandler implements Disposable {
     }
 
     private async isUvExternallyManaged(checkUvInstallationResult : CommandResult) : Promise<boolean> {
-        const uvPathString = checkUvInstallationResult.stdout.trim().split('/\r?\n')[0]
+        let uvPathString = checkUvInstallationResult.stdout.trim().split('/\r?\n')[0]
         const expectedUvPath = this.getExpectedUvPath()
+
+        if (uvPathString.startsWith('"') && uvPathString.endsWith('"')) {
+            uvPathString = uvPathString.slice(1, -1)
+        }
 
         return uvPathString.toLowerCase() !== expectedUvPath.toLowerCase()
     }
