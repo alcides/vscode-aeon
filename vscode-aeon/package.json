@@ -64,7 +64,12 @@
       },
       {
         "command": "aeon.setup.uninstallUv",
-        "title": "Setup: Uninstall Uv",
+        "title": "Setup : Uninstall Uv",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.troubleshooting.showOutput",
+        "title": "Troubleshooting : Show Output",
         "category": "Aeon"
       }
     ],
@@ -103,6 +108,9 @@
         },
         {
           "command": "aeon.setup.uninstallUv"
+        },
+        {
+          "command": "aeon.troubleshooting.showOutput"
         }
       ]
     },
