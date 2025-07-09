@@ -1,14 +1,13 @@
-import { commands, ExtensionContext, extensions, OutputChannel, TextDocument, window, workspace } from 'vscode'
-import { PathProvider } from '../pathProvider'
-import { UriHandler } from '../handlers/uriHandler'
-import { AeonClient } from '../aeonClient'
-import { ProjectHandler } from '../handlers/projectHandler'
-import { AeonInstallationHandler } from '../handlers/aeonInstallationHandler'
-import { DiagnosticsHandler } from '../handlers/diagnosticsHandler'
-import { UvCommandHandler } from '../handlers/uvCommandHandler'
-import { PATH, setProcessEnvPATH } from '../aeonPath'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { commands, ExtensionContext, OutputChannel, window } from 'vscode'
+import { AeonClient } from '../aeonClient'
+import { PATH, setProcessEnvPATH } from '../aeonPath'
+import { AeonInstallationHandler } from '../handlers/aeonInstallationHandler'
+import { DiagnosticsHandler } from '../handlers/diagnosticsHandler'
+import { ProjectHandler } from '../handlers/projectHandler'
+import { UriHandler } from '../handlers/uriHandler'
+import { PathProvider } from '../pathProvider'
 import { FileResource } from './supportedUri'
 
 function injectUvIntoSystemPath() {
@@ -23,38 +22,33 @@ function getUvPath(): string {
     return path.join(os.homedir(), '.uv', 'bin')
 }
 
-function getDefaultAeonVersion() {
-    //TODO
-}
-
 export interface AeonBackgroundServices {
-    projectHandler : ProjectHandler,
+    projectHandler: ProjectHandler
     editorOutputChannel: OutputChannel
     aeonInstallationHandler: AeonInstallationHandler
     diagnosticsHandler: DiagnosticsHandler
-    uvCommandHandler: UvCommandHandler
 }
 
-export interface AeonServices extends AeonBackgroundServices{
-    aeonClient : AeonClient,
+export interface AeonServices extends AeonBackgroundServices {
+    aeonClient: AeonClient
 }
 
-function activateBackgroundServices(context: ExtensionContext): AeonBackgroundServices {
+export function activateBackgroundServices(context: ExtensionContext): AeonBackgroundServices {
     injectUvIntoSystemPath()
     context.subscriptions.push(new PathProvider())
 
     context.subscriptions.push(
-        commands.registerCommand('aeon.docs.showSetupGuide', () =>
-            commands.executeCommand('workbench.action.openWalkthrough', 'aeon.welcome', false),
+        commands.registerCommand('aeon.showSetupGuide', () =>
+            commands.executeCommand('workbench.action.openWalkthrough', 'AlcidesFonseca.aeon-lang#aeon.welcome', false),
         ),
-        commands.registerCommand('aeon.troubleshooting.showTroubleshootingGuide', () =>
+        /*commands.registerCommand('aeon.troubleshooting.showTroubleshootingGuide', () =>
             commands.executeCommand(
                 'workbench.action.openWalkthrough',
                 { category: 'aeon.welcome', step: 'aeon.welcome.help' },
                 false,
             ),
-        ),
-        commands.registerCommand('aeon.docs.showDocResources', () =>
+        ),*/
+        commands.registerCommand('aeon.showDocResources', () =>
             commands.executeCommand('simpleBrowser.show', 'https://alcides.github.io/aeon/'),
         ),
     )
@@ -64,18 +58,20 @@ function activateBackgroundServices(context: ExtensionContext): AeonBackgroundSe
         commands.registerCommand('aeon.troubleshooting.showOutput', () => editorOutputChannel.show(true)),
     )
 
-    const defaultToolchain = getDefaultAeonVersion()
-    const aeonInstallationHandler = new AeonInstallationHandler(editorOutputChannel, defaultToolchain)
+    const aeonInstallationHandler = new AeonInstallationHandler(editorOutputChannel)
     context.subscriptions.push(
         commands.registerCommand(
             'aeon.setup.installUv',
-            async () => await aeonInstallationHandler.displayInstallUvPrompt('Information'),
+            async () => await aeonInstallationHandler.displayInstallUvPrompt(),
         ),
         commands.registerCommand(
             'aeon.setup.updateUv',
-            async () => await aeonInstallationHandler.displayManualUpdateUvPrompt(),
+            async () => await aeonInstallationHandler.displayUpdateUvPrompt(),
         ),
-        commands.registerCommand('aeon.setup.uninstallUv', async () => await aeonInstallationHandler.uninstallUv()),
+        commands.registerCommand(
+            'aeon.setup.uninstallUv',
+            async () => await aeonInstallationHandler.displayUninstallUvPrompt(),
+        ),
     )
 
     const projectHandler = new ProjectHandler(editorOutputChannel, aeonInstallationHandler)
@@ -83,9 +79,6 @@ function activateBackgroundServices(context: ExtensionContext): AeonBackgroundSe
 
     const diagnosticsHandler = new DiagnosticsHandler(editorOutputChannel)
     context.subscriptions.push(diagnosticsHandler)
-
-    const uvCommandHandler = new UvCommandHandler(editorOutputChannel)
-    context.subscriptions.push(uvCommandHandler)
 
     const uriHandler = new UriHandler()
     context.subscriptions.push(uriHandler)
@@ -95,7 +88,6 @@ function activateBackgroundServices(context: ExtensionContext): AeonBackgroundSe
         editorOutputChannel,
         aeonInstallationHandler,
         diagnosticsHandler,
-        uvCommandHandler,
     }
 }
 
@@ -104,6 +96,4 @@ async function checkAeonPrerequisites(
     context: string,
     fileResource: FileResource | undefined,
     diagnosticsHandler: DiagnosticsHandler,
-){
-
-}
+) {}
