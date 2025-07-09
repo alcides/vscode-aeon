@@ -1,16 +1,13 @@
 import { commands, Disposable, OutputChannel, Uri, window } from 'vscode'
 
 export class DiagnosticsHandler implements Disposable {
-    private subscriptions: Disposable[] = []
+    private editorOutputChannel: OutputChannel
 
     constructor(editorOutputChannel: OutputChannel) {
-        //TODO
+        this.editorOutputChannel =  editorOutputChannel;
     }
 
     dispose(): void {
-        for (const s of this.subscriptions) {
-            s.dispose()
-        }
     }
 
 }
