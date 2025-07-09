@@ -34,7 +34,10 @@ export class AeonInstallationHandler implements Disposable {
         }
         await this.notificationHandler.showChoice('Uv is not installed. Would you like to install it now?', {
             Install: async () => {
-                const installUvResult = await this.installUv()
+                const installUvResult = await this.notificationHandler.runWithProgress(
+                    'Installing Uv...',
+                    () => this.installUv()
+                );
                 const resultMessage = installUvResult.getMessage(
                     'Successfully installed Uv',
                     'Error Installing Uv'
@@ -65,7 +68,10 @@ export class AeonInstallationHandler implements Disposable {
 
         await this.notificationHandler.showChoice('Would you like to update your Uv installation?', {
             Update: async () => {
-                const updateResult = await this.updateUv();
+                const updateResult = await this.notificationHandler.runWithProgress(
+                    'Updating Uv...',
+                    () => this.updateUv()
+                );
                 const resultMessage = updateResult.getMessage(
                     'Successfully updated Uv.',
                     'Failed to update Uv.'
@@ -90,7 +96,10 @@ export class AeonInstallationHandler implements Disposable {
 
         await this.notificationHandler.showChoice('Would you like to uninstall Uv?', {
             Uninstall: async () => {
-                const uninstallResult = await this.uninstallUv();
+                const uninstallResult = await this.notificationHandler.runWithProgress(
+                    'Uninstalling Uv...',
+                    () => this.uninstallUv()
+                );
                 const resultMessage = uninstallResult.getMessage(
                     'Successfully uninstalled Uv.',
                     'Failed to uninstall Uv.'
