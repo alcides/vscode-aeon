@@ -18,7 +18,7 @@ export class UriHandler implements Disposable{
             window.registerUriHandler({
                 async handleUri(uri: Uri) {
                     if (uri.path === '/setup-guide') {
-                        await commands.executeCommand('aeon.docs.showSetupGuide')
+                        await commands.executeCommand('aeon.showSetupGuide')
                     }
                 },
             }),
