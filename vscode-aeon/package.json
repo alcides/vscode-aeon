@@ -188,13 +188,7 @@
     ]
   },
   "activationEvents": [
-    "onViewWelcome:aeon.welcome",
-    "onCommand:aeon.showSetupGuide",
-    "onCommand:aeon.showDocResources",
-    "onCommand:aeon.setup.installUv",
-    "onCommand:aeon.setup.updateUv",
-    "onCommand:aeon.setup.uninstallUv",
-    "onLanguage:aeon"
+    "onViewWelcome:aeon.welcome"
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",
