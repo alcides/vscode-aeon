@@ -1,17 +1,15 @@
-import { commands, Disposable, OutputChannel, Uri, window } from 'vscode'
+import { Disposable, OutputChannel } from 'vscode'
 import { AeonInstallationHandler } from './aeonInstallationHandler'
 
 export class ProjectHandler implements Disposable {
-    private subscriptions: Disposable[] = []
+    private editorOutputChannel: OutputChannel
+    private aeonInstallationHandler: AeonInstallationHandler
 
     constructor(editorOutputChannel: OutputChannel, aeonInstallationHandler: AeonInstallationHandler) {
-        //TODO
+        this.editorOutputChannel = editorOutputChannel
+        this.aeonInstallationHandler = aeonInstallationHandler
     }
 
     dispose(): void {
-        for (const s of this.subscriptions) {
-            s.dispose()
-        }
     }
-
 }
