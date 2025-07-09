@@ -1,6 +1,12 @@
+import * as vscode from 'vscode'
 import { workspace } from 'vscode'
-import { PATH } from './aeonPath'
+import * as path from 'node:path'
 
-export function envPath(): PATH {
-    return new PATH(workspace.getConfiguration('aeon').get('envPath', []))
+export function envPath(context: vscode.ExtensionContext): string {
+    const configInterpreterPath: string | undefined = vscode.workspace.getConfiguration('aeon').get('interpreterPath')
+    if (configInterpreterPath) {
+        return configInterpreterPath
+    }
+
+    return path.join(context.globalStorageUri.fsPath, 'interpreter')
 }
