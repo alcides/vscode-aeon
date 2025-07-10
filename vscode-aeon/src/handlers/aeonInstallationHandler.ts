@@ -4,7 +4,7 @@ import {Disposable, OutputChannel} from 'vscode'
 import {CommandResult} from '../utils/commandResult'
 import {NotificationHandler} from './notificationHandler'
 import {Platform, TerminalHandler} from './terminalHandler'
-import {useSystemInterpreter} from "../config";
+import { getAeonVersion, useSystemInterpreter } from '../config'
 
 
 export interface PreConditionResult {
@@ -84,7 +84,7 @@ export class AeonInstallationHandler implements Disposable {
 
     async installAeon(): Promise<CommandResult> {
         const AEON_REPOSITORY = 'git+https://github.com/alcides/aeon.git'
-        const AEON_VERSION = 'lsp-mode-sync'
+        const AEON_VERSION = getAeonVersion()
 
         const pythonPath = this.getPythonExecutablePath()
         const command = `uv pip install --python "${pythonPath}" "${AEON_REPOSITORY}@${AEON_VERSION}"`

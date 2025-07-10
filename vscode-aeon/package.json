@@ -33,6 +33,11 @@
           "type": "boolean",
           "default": false,
           "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
+        },
+        "aeon.version": {
+          "type": "string",
+          "default": "lsp-mode",
+          "description": "Branch or Git Hash that represents which aeon version gets installed from git."
         }
       }
     },
