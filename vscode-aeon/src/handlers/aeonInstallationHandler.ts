@@ -1,9 +1,10 @@
 import * as os from 'node:os'
 import * as path from 'path'
-import { Disposable, OutputChannel } from 'vscode'
-import { CommandResult } from '../utils/commandResult'
-import { NotificationHandler } from './notificationHandler'
-import { Platform, TerminalHandler } from './terminalHandler'
+import {Disposable, OutputChannel} from 'vscode'
+import {CommandResult} from '../utils/commandResult'
+import {NotificationHandler} from './notificationHandler'
+import {Platform, TerminalHandler} from './terminalHandler'
+import {useSystemInterpreter} from "../config";
 
 
 export interface PreConditionResult {
@@ -17,19 +18,25 @@ export class AeonInstallationHandler implements Disposable {
     private readonly notificationHandler: NotificationHandler
     private readonly envPath: string
 
-    constructor(editorOutputChannel: OutputChannel, envPath : string) {
+    constructor(editorOutputChannel: OutputChannel, envPath: string) {
         this.editorOutputChannel = editorOutputChannel
         this.terminalHandler = new TerminalHandler(editorOutputChannel)
         this.notificationHandler = new NotificationHandler()
         this.envPath = envPath
     }
 
-    dispose(): void {}
+    dispose(): void {
+    }
 
     getAeonExecutablePath(): string {
         const platform = this.terminalHandler.getPlatform()
-        const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
         const exeName = platform === Platform.Windows ? 'aeon.exe' : 'aeon'
+
+        if (useSystemInterpreter()) {
+            return exeName
+        }
+
+        const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
         return path.join(this.envPath, exeDirectory, exeName)
     }
 
@@ -167,7 +174,7 @@ export class AeonInstallationHandler implements Disposable {
                     }
                 },
             },
-            { modal: true },
+            {modal: true},
         )
     }
 
@@ -191,8 +198,8 @@ export class AeonInstallationHandler implements Disposable {
         const command =
             platform === Platform.Windows
                 ? 'powershell -ExecutionPolicy Bypass -c "' +
-                  'Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
-                  'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
+                'Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
+                'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
                 : 'rm -f $(which uv) $(which uvx)'
 
         return await this.terminalHandler.runCommand(command)
