@@ -24,15 +24,15 @@
       "type": "object",
       "title": "Aeon",
       "properties": {
-        "aeon.python.executable": {
+        "aeon.environmentPath": {
           "type": "string",
-          "default": "python3",
-          "description": "Path to Python interpreter executable"
+          "default": "",
+          "description": "Path to the environment which aeon will be installed on."
         },
-        "aeon.elaborationDelay": {
-          "type": "number",
-          "default": 200,
-          "description": "Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower values may make editing feel faster at the cost of higher CPU usage."
+        "aeon.useSystemInterpreter": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
         }
       }
     },
