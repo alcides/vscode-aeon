@@ -1,23 +1,25 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+// based on https://github.com/microsoft/vscode-extension-samples/tree/master/lsp-sample which
+// has this copyright:
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "Aeon" is now active!');
+ * ------------------------------------------------------------------------------------------ */
+import * as vscode from 'vscode'
+import { AeonServices, createAllServices } from './utils/handlerUtils'
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand('aeon.helloWorld', () => {
-        // The code you place here will be executed every time your command is executed
+let aeonServices: AeonServices | undefined
 
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!').then(() => {}, (error) => { console.log(error) });
-    });
+export async function activate(context: vscode.ExtensionContext) {
+    aeonServices = createAllServices(context)
+    await aeonServices.aeonClient.start()
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(aeonServices.aeonClient)
+    context.subscriptions.push(aeonServices.aeonInstallationHandler)
+    context.subscriptions.push(aeonServices.editorOutputChannel)
+    context.subscriptions.push(aeonServices.diagnosticsHandler)
+    context.subscriptions.push(aeonServices.projectHandler)
+}
+
+export function deactivate() {
 }

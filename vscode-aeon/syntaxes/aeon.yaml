@@ -3,161 +3,159 @@ name: Aeon
 scopeName: source.aeon
 fileTypes: [ae]
 patterns:
-    - include: "#comments"
-    - include: "#literals"
-    - include: "#functions"
-    - include: "#keywords"
-    - include: "#operators"
-    - include: "#types"
-    - match: '\b[a-z][a-zA-Z0-9_]*\b'
-      name: entity.name.function.aeon
-    - match: '\b[A-Z][a-zA-Z0-9_]*\b'
-      name: entity.name.type.aeon
+  - include: "#comments"
+  - include: "#literals"
+  - include: "#functions"
+  - include: "#keywords"
+  - include: "#operators"
+  - include: "#types"
+  - match: '\b[a-z][a-zA-Z0-9_]*\b'
+    name: entity.name.function.aeon
+  - match: '\b[A-Z][a-zA-Z0-9_]*\b'
+    name: entity.name.type.aeon
 
 repository:
-    comments:
-        patterns:
-            - name: comment.line.aeon
-              match: '#.*$'
+  comments:
+    patterns:
+      - name: comment.line.aeon
+        match: '#.*$'
 
-    literals:
-        patterns:
-            - include: "#strings"
-            - include: "#numbers"
-            - include: "#booleans"
-            - include: "#kinds"
+  literals:
+    patterns:
+      - include: "#strings"
+      - include: "#numbers"
+      - include: "#booleans"
+      - include: "#kinds"
 
-    strings:
-        name: string.quoted.double.aeon
-        begin: '"'
+  strings:
+    name: string.quoted.double.aeon
+    begin: '"'
+    end: '"'
+    patterns:
+      - name: constant.character.escape.aeon
+        match: \\.
+
+  numbers:
+    patterns:
+      - name: constant.numeric.float.aeon
+        match: '\b\d+\.\d+\b'
+      - name: constant.numeric.integer.aeon
+        match: '\b\d+\b'
+
+  booleans:
+    patterns:
+      - name: constant.language.boolean.aeon
+        match: \b(true|false)\b
+
+  kinds:
+    patterns:
+      - name: constant.language.kind.base.aeon
+        match: '\bB\b'
+
+  functions:
+    patterns:
+      - include: "#nativeFunctions"
+      - include: "#lambdaFunctions"
+      - include: "#kindFunctions"
+
+  nativeFunctions:
+    patterns:
+      - name: meta.embedded.python.aeon
+        begin: '(native)\s+"'
         end: '"'
+        captures:
+          "1": { name: keyword.other.native.aeon }
+        contentName: source.python
         patterns:
-            - name: constant.character.escape.aeon
-              match: \\.
+          - include: source.python
+      - name: meta.native.import.aeon
+        begin: '(native_import)\s+"'
+        end: '"'
+        beginCaptures:
+          "1": { name: keyword.other.import.native.aeon }
+        contentName: string.quoted.module.python
 
-    numbers:
-        patterns:
-            - name: constant.numeric.float.aeon
-              match: '\b\d+\.\d+\b'
-            - name: constant.numeric.integer.aeon
-              match: '\b\d+\b'
+  lambdaFunctions:
+    patterns:
+      - match: '(\\)\s*([a-zA-Z0-9_]+)'
+        captures:
+          "1": { name: keyword.operator.lambda.symbol.aeon }
+          "2": { name: variable.parameter.aeon }
 
-    booleans:
-        patterns:
-            - name: constant.language.boolean.aeon
-              match: \b(true|false)\b
+  kindFunctions:
+    patterns:
+      - match: '(Λ)\s*([a-z][a-zA-Z0-9_]*)'
+        captures:
+          "1": { name: keyword.operator.kind.lambda.symbol.aeon }
+          "2": { name: kind.parameter.function.lambda.aeon }
+  keywords:
+    patterns:
+      - include: "#imports"
+      - include: "#controlKeywords"
 
-    kinds:
-        patterns:
-            - name: constant.language.kind.base.aeon
-              match: '\bB\b'
-            - name: constant.language.kind.star.aeon
-              match: '\b*\b'
+  imports:
+    patterns:
+      - match: '^(import)\s+(.+?)\s+from\s+"(.+)"'
+        captures:
+          "1": { name: keyword.control.import.aeon }
+          "2": { name: entity.name.function.aeon }
+          "3": { name: entity.name.namespace.aeon }
+      - match: '^(import)\s+"(.+)"'
+        captures:
+          "1": { name: keyword.control.import.aeon }
+          "2": { name: entity.name.namespace.aeon }
 
-    functions:
-        patterns:
-            - include: "#nativeFunctions"
-            - include: "#lambdaFunctions"
-            - include: "#kindFunctions"
+  controlKeywords:
+    patterns:
+      - match: '\bin\b'
+        name: keyword.control.aeon
+      - match: '\b(let)\s+([a-zA-Z0-9_]+)\b'
+        captures:
+          "1": { name: keyword.declaration.let.aeon }
+          "2": { name: variable.declaration.aeon }
+      - match: '\b(def)\s+([a-zA-Z0-9_]+)\b'
+        captures:
+          "1": { name: keyword.declaration.function.aeon }
+          "2": { name: entity.name.function.aeon }
+      - match: '\b(type)\s+([a-zA-Z0-9_]+)\b'
+        captures:
+          "1": { name: keyword.declaration.type.aeon }
+          "2": { name: entity.name.type.aeon }
+      - match: '\b(@)([a-zA-Z0-9_]+)\b'
+        captures:
+          "1": { name: entity.name.tag.aeon }
+          "2": { name: entity.name.macro.aeon }
+      - match: '\b(forall)\s+([a-zA-Z0-9_]+)\b'
+        captures:
+          "1": { name: keyword.universal.quantifier.aeon }
+          "2": { name: entity.polymorphic.type.macro.aeon }
+      - match: '\b(if|then|else)\b'
+        name: keyword.control.conditional.aeon
 
-    nativeFunctions:
-        patterns:
-            - name: meta.embedded.python.aeon
-              begin: '(native)\s+"'
-              end: '"'
-              captures:
-                  "1": { name: keyword.other.native.aeon }
-              contentName: source.python
-              patterns:
-                  - include: source.python
-            - name: meta.native.import.aeon
-              begin: '(native_import)\s+"'
-              end: '"'
-              beginCaptures:
-                  "1": { name: keyword.other.import.native.aeon }
-              contentName: string.quoted.module.python
+  operators:
+    patterns:
+      - name: keyword.operator.lambda.function.arrow.aeon
+        match: '->'
+      - name: keyword.operator.lambda.kind.arrow.aeon
+        match: '=>'
+      - name: keyword.operator.assignment.aeon
+        match: '='
+      - name: punctuation.separator.type
+        match: ':'
+      - name: keyword.operator.logical.aeon
+        match: (\|\||&&|!)
+      - name: keyword.operator.comparison.aeon
+        match: (==|>=|<=|!=|>|<|-->)
+      - name: keyword.operator.arithmetic.integer.aeon
+        match: (\+|-|\*|/|%)
+      - name: keyword.operator.arithmetic.float.aeon
+        match: (\+|-|\*|/|%).
+      - name: punctuation.terminator.statement.aeon
+        match: ';'
 
-    lambdaFunctions:
-        patterns:
-            - match: '(\\)\s*([a-zA-Z0-9_]+)'
-              captures:
-                  "1": { name: keyword.operator.lambda.symbol.aeon }
-                  "2": { name: variable.parameter.aeon }
-
-    kindFunctions:
-        patterns:
-            - match: '(Λ)\s*([a-z][a-zA-Z0-9_]*)'
-              captures:
-                  "1": { name: keyword.operator.kind.lambda.symbol.aeon }
-                  "2": { name: kind.parameter.function.lambda.aeon }
-    keywords:
-        patterns:
-            - include: "#imports"
-            - include: "#controlKeywords"
-
-    imports:
-        patterns:
-            - match: '^(import)\s+(.+?)\s+from\s+"(.+)"'
-              captures:
-                  "1": { name: keyword.control.import.aeon }
-                  "2": { name: entity.name.function.aeon }
-                  "3": { name: entity.name.namespace.aeon }
-            - match: '^(import)\s+"(.+)"'
-              captures:
-                  "1": { name: keyword.control.import.aeon }
-                  "2": { name: entity.name.namespace.aeon }
-
-    controlKeywords:
-        patterns:
-            - match: '\bin\b'
-              name: keyword.control.aeon
-            - match: '\b(let)\s+([a-zA-Z0-9_]+)\b'
-              captures:
-                  "1": { name: keyword.declaration.let.aeon }
-                  "2": { name: variable.declaration.aeon }
-            - match: '\b(def)\s+([a-zA-Z0-9_]+)\b'
-              captures:
-                  "1": { name: keyword.declaration.function.aeon }
-                  "2": { name: entity.name.function.aeon }
-            - match: '\b(type)\s+([a-zA-Z0-9_]+)\b'
-              captures:
-                  "1": { name: keyword.declaration.type.aeon }
-                  "2": { name: entity.name.type.aeon }
-            - match: '\b(@)([a-zA-Z0-9_]+)\b'
-              captures:
-                  "1": { name: entity.name.tag.aeon }
-                  "2": { name: entity.name.macro.aeon }
-            - match: '\b(forall)\s+([a-zA-Z0-9_]+)\b'
-              captures:
-                  "1": { name: keyword.universal.quantifier.aeon }
-                  "2": { name: entity.polymorphic.type.macro.aeon }
-            - match: '\b(if|then|else)\b'
-              name: keyword.control.conditional.aeon
-
-    operators:
-        patterns:
-            - name: keyword.operator.lambda.function.arrow.aeon
-              match: '->'
-            - name: keyword.operator.lambda.kind.arrow.aeon
-              match: '=>'
-            - name: keyword.operator.assignment.aeon
-              match: '='
-            - name: punctuation.separator.type
-              match: ':'
-            - name: keyword.operator.logical.aeon
-              match: (\|\||&&|!)
-            - name: keyword.operator.comparison.aeon
-              match: (==|>=|<=|!=|>|<|-->)
-            - name: keyword.operator.arithmetic.integer.aeon
-              match: (\+|-|\*|/|%)
-            - name: keyword.operator.arithmetic.float.aeon
-              match: (\+|-|\*|/|%).
-            - name: punctuation.terminator.statement.aeon
-              match: ';'
-
-    types:
-        patterns:
-            - name: storage.type.primitive.aeon
-              match: '\b(Unit|Int|Float|String|Bool)\b'
-            - name: keyword.operator.pipe.aeon
-              match: '\b(where|\|)\b'
+  types:
+    patterns:
+      - name: storage.type.primitive.aeon
+        match: '\b(Unit|Int|Float|String|Bool)\b'
+      - name: keyword.operator.pipe.aeon
+        match: '\b(where|\|)\b'

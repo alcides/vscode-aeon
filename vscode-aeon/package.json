@@ -1,98 +1,236 @@
 {
-    "name": "aeon-lang",
-    "displayName": "Æon Language",
-    "description": "Aeon language support for VS Code",
-    "version": "0.0.7",
-    "publisher": "AlcidesFonseca",
-    "engines": {
-        "vscode": "^1.75.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "keywords": [
-        "Aeon"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/alcides/vscode-aeon.git"
-    },
-    "homepage": "https://github.com/alcides/aeon",
-    "activationEvents": [],
-    "main": "./out/extension.js",
-    "contributes": {
-        "configuration": {
-            "type": "object",
-            "title": "Aeon",
-            "properties": {
-                "aeon.elaborationDelay": {
-                    "type": "number",
-                    "default": 200,
-                    "description": "Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower values may make editing feel faster at the cost of higher CPU usage."
-                }
-            }
+  "name": "aeon-lang",
+  "displayName": "Æon Language",
+  "description": "Aeon language support for VS Code",
+  "version": "0.0.6",
+  "publisher": "AlcidesFonseca",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "Aeon"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alcides/vscode-aeon.git"
+  },
+  "homepage": "https://github.com/alcides/aeon",
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Aeon",
+      "properties": {
+        "aeon.python.executable": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to Python interpreter executable"
         },
-        "commands": [
-            {
-                "command": "aeon.helloWorld",
-                "title": "Hello World"
-            }
-        ],
-        "languages": [
-            {
-                "id": "aeon",
-                "configuration": "./language-configuration.json",
-                "extensions": [
-                    ".ae"
-                ]
-            }
-        ],
-        "grammars": [
-            {
-                "language": "aeon",
-                "scopeName": "source.aeon",
-                "path": "./syntaxes/aeon.json",
-				"embeddedLanguages": {
-                    "source.python": "python"
-                }
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "lint": "eslint",
-        "watch": "tsc -watch -p ./",
-        "package": "vsce package",
-        "packagePreRelease": "vsce package --pre-release"
-    },
-    "devDependencies": {
-        "@eslint/js": "^9.13.0",
-        "@stylistic/eslint-plugin": "^4.0.1",
-        "@types/node": "^22",
-        "@types/vscode": "^1.73.0",
-        "eslint": "^9.13.0",
-        "typescript": "^5.7.2",
-        "typescript-eslint": "^8.16.0",
-        "@vscode/vsce": "^3.2.2",
-        "ovsx": "^0.10.4"
-    },
-    "icon": "images/aeon_logo.png",
-    "dependencies": {
-        "yarn": "^1.22.22",
-        "@vscode/codicons": "^0.0.36",
-        "@vscode-elements/elements": "^1.7.1",
-        "vscode-languageclient": "^9.0.1",
-        "semver": "^7.6.0"
-    },
-    "__metadata": {
-        "id": "aeon-lang",
-        "publisherDisplayName": "AlcidesFonseca",
-        "publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
-        "isPreReleaseVersion": false
-    },
-	"embeddedLanguages": {
-                    "source.python": "python",
-                    "meta.embedded.block.python": "python"
+        "aeon.elaborationDelay": {
+          "type": "number",
+          "default": 200,
+          "description": "Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower values may make editing feel faster at the cost of higher CPU usage."
+        }
       }
+    },
+    "commands": [
+      {
+        "command": "aeon.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "aeon.showSetupGuide",
+        "title": "Docs : Show Setup Guide",
+        "description": "Show Aeon setup guide",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.showDocResources",
+        "title": "Docs : Open Aeon Documentation",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.setup.installUv",
+        "title": "Setup : Install Uv",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.setup.updateUv",
+        "title": "Setup : Update Uv",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.setup.uninstallUv",
+        "title": "Setup : Uninstall Uv",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.troubleshooting.showOutput",
+        "title": "Troubleshooting : Show Output",
+        "category": "Aeon"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "aeon",
+        "scopeName": "source.aeon",
+        "path": "./syntaxes/aeon.json",
+        "embeddedLanguages": {
+          "source.python": "python"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "id": "aeon",
+        "configuration": "./language-configuration.json",
+        "extensions": [
+          ".ae"
+        ]
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "aeon.showSetupGuide"
+        },
+        {
+          "command": "aeon.showDocResources"
+        },
+        {
+          "command": "aeon.setup.installUv"
+        },
+        {
+          "command": "aeon.setup.updateUv"
+        },
+        {
+          "command": "aeon.setup.uninstallUv"
+        },
+        {
+          "command": "aeon.troubleshooting.showOutput"
+        }
+      ]
+    },
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "keyword": [
+            "keyword.other"
+          ]
+        }
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "aeon.welcome",
+        "title": "Aeon Setup",
+        "description": "Getting started with Aeon\n",
+        "steps": [
+          {
+            "id": "aeon.welcome.openSetupGuide",
+            "title": "Re-Open Setup Guide",
+            "description": "This guide can always be re-opened by running the command 'Aeon : Docs : Show Setup Guide'.",
+            "media": {
+              "image": "media/openguide.png",
+              "altText": "Click on the Top menu bar, select 'Show and Run Commands >', then 'Aeon : Docs : Show Setup Guide'"
+            }
+          },
+          {
+            "id": "aeon.welcome.documentation",
+            "title": "Documentation",
+            "description": "Learn using Aeon with the resources on the right.",
+            "media": {
+              "markdown": "./media/guide-documentation.md"
+            }
+          },
+          {
+            "id": "aeon.welcome.installDeps.linux",
+            "title": "Install Required Dependencies",
+            "description": "Install Git and curl using your package manager.",
+            "media": {
+              "markdown": "./media/guide-installDeps-linux.md"
+            },
+            "when": "isLinux"
+          },
+          {
+            "id": "aeon.welcome.installDeps.mac",
+            "title": "Install Required Dependencies",
+            "description": "Install Homebrew, Git and curl.",
+            "media": {
+              "markdown": "./media/guide-installDeps-mac.md"
+            },
+            "when": "isMac"
+          },
+          {
+            "id": "aeon.welcome.installDeps.windows",
+            "title": "Install Required Dependencies",
+            "description": "Install Git.",
+            "media": {
+              "markdown": "./media/guide-installDeps-windows.md"
+            },
+            "when": "isWindows"
+          },
+          {
+            "id": "aeon.welcome.installUv.unix",
+            "title": "Install uv Python Environment Manager",
+            "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
+            "media": {
+              "markdown": "./media/guide-installUv-unix.md"
+            },
+            "when": "isLinux || isMac"
+          },
+          {
+            "id": "aeon.welcome.installUv.windows",
+            "title": "Install uv Python Environment Manager",
+            "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
+            "media": {
+              "markdown": "./media/guide-installUv-windows.md"
+            },
+            "when": "isWindows"
+          }
+        ]
+      }
+    ]
+  },
+  "activationEvents": [
+    "onViewWelcome:aeon.welcome"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
+    "lint": "eslint",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
+    "package": "vsce package",
+    "packagePreRelease": "vsce package --pre-release"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@stylistic/eslint-plugin": "^2.9.0",
+    "@types/node": "^20",
+    "@types/vscode": "^1.73.0",
+    "@vscode/vsce": "^2.21.1",
+    "esbuild": "^0.25.5",
+    "eslint": "^9.13.0",
+    "ovsx": "^0.9.1",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.16.0"
+  },
+  "icon": "images/aeon_logo.png",
+  "dependencies": {
+    "@vscode-elements/elements": "^1.7.1",
+    "@vscode/codicons": "^0.0.36",
+    "dotenv": "^17.0.1",
+    "semver": "^7.6.0",
+    "vscode-languageclient": "^9.0.1",
+    "yarn": "^1.22.22"
+  },
+  "__metadata": {
+    "id": "aeon-lang",
+    "publisherDisplayName": "AlcidesFonseca",
+    "publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
+    "isPreReleaseVersion": false
+  }
 }

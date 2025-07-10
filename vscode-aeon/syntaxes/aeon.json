@@ -94,10 +94,6 @@
         {
           "name": "constant.language.kind.base.aeon",
           "match": "\\bB\\b"
-        },
-        {
-          "name": "constant.language.kind.star.aeon",
-          "match": "\\b*\\b"
         }
       ]
     },
