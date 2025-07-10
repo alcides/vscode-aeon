@@ -14,7 +14,7 @@
             "outFiles": [
                 "${workspaceRoot}/vscode-aeon/dist/**/*.js"
             ],
-            "preLaunchTask": "watch",
+            //"preLaunchTask": "watch",
             "debugWebviews": true,
             "rendererDebugOptions": {
                 "webRoot": "${workspaceRoot}/vscode-aeon/media"
