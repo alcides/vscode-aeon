@@ -204,6 +204,7 @@
     "onViewWelcome:aeon.welcome"
   ],
   "scripts": {
+    "build": "npm run vscode:prepublish",
     "vscode:prepublish": "npm run compile",
     "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
     "lint": "eslint",
