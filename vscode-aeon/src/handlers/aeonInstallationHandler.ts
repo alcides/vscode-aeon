@@ -83,11 +83,10 @@ export class AeonInstallationHandler implements Disposable {
 
 
     async installAeon(): Promise<CommandResult> {
-        const AEON_REPOSITORY = 'git+https://github.com/alcides/aeon.git'
-        const AEON_VERSION = 'lsp-mode-sync'
+        const AEON_PACKAGE = 'aeonlang'
 
         const pythonPath = this.getPythonExecutablePath()
-        const command = `uv pip install --python "${pythonPath}" "${AEON_REPOSITORY}@${AEON_VERSION}"`
+        const command = `uv pip install --python "${pythonPath}" "${AEON_PACKAGE}"`
         return await this.terminalHandler.runCommand(command)
     }
 
