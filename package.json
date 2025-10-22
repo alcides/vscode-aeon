@@ -1,5 +1,5 @@
 {
-    "name": "@leanprover/vscode-aeon-repo",
+    "name": "@alcides/vscode-aeon-repo",
     "private": true,
     "scripts": {
         "build": "lerna run --stream build",
