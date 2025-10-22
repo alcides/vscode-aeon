@@ -1,10 +1,11 @@
-import { commands, ExtensionContext, OutputChannel, window } from 'vscode'
+import { commands, ExtensionContext, OutputChannel, window, Uri } from 'vscode'
 import { AeonClient } from '../aeonClient'
 import { AeonInstallationHandler } from '../handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from '../handlers/diagnosticsHandler'
 import { ProjectHandler } from '../handlers/projectHandler'
 import { UriHandler } from '../handlers/uriHandler'
 import { envPath } from '../config'
+import { RunAeonHandler } from '../handlers/runAeonHandler'
 
 export interface AeonBackgroundServices {
     projectHandler: ProjectHandler
@@ -63,6 +64,22 @@ export function activateBackgroundServices(context: ExtensionContext): AeonBackg
 
     const uriHandler = new UriHandler()
     context.subscriptions.push(uriHandler)
+
+    const runAeonHandler = new RunAeonHandler(editorOutputChannel)
+    context.subscriptions.push(
+        commands.registerCommand('aeon.run.file', async (uri: Uri) => {
+            if (uri && uri.fsPath) {
+                await runAeonHandler.runAeonFile(uri.fsPath)
+            } else {
+                const activeEditor = window.activeTextEditor
+                if (activeEditor && activeEditor.document.languageId === 'aeon') {
+                    await runAeonHandler.runAeonFile(activeEditor.document.uri.fsPath)
+                } else {
+                    void window.showErrorMessage('No Aeon file selected.')
+                }
+            }
+        }),
+    )
 
     return {
         projectHandler,

@@ -71,6 +71,11 @@
         "command": "aeon.troubleshooting.showOutput",
         "title": "Troubleshooting : Show Output",
         "category": "Aeon"
+      },
+      {
+        "command": "aeon.run.file",
+        "title": "Run Aeon File",
+        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -111,6 +116,13 @@
         },
         {
           "command": "aeon.troubleshooting.showOutput"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "resourceLangId == aeon",
+          "command": "aeon.run.file",
+          "group": "navigation"
         }
       ]
     },
