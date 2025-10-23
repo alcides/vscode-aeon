@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.75.0"
@@ -71,11 +71,6 @@
         "command": "aeon.troubleshooting.showOutput",
         "title": "Troubleshooting : Show Output",
         "category": "Aeon"
-      },
-      {
-        "command": "aeon.run.file",
-        "title": "Run Aeon File",
-        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -116,13 +111,6 @@
         },
         {
           "command": "aeon.troubleshooting.showOutput"
-        }
-      ],
-      "editor/context": [
-        {
-          "when": "resourceLangId == aeon",
-          "command": "aeon.run.file",
-          "group": "navigation"
         }
       ]
     },
@@ -212,6 +200,7 @@
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "build": "npm run compile",
     "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
     "lint": "eslint",
     "watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
