@@ -33,7 +33,7 @@ export class AeonClient implements Disposable {
     private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
         return {
             command: aeonInstallationHandler.getAeonExecutablePath(),
-            args: ['-lsp'],
+            args: ['--from', 'aeonlang', 'aeon', '--lsp'],
         }
     }
 
