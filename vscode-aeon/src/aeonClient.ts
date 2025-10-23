@@ -32,7 +32,7 @@ export class AeonClient implements Disposable {
 
     private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
         return {
-            command: "uv",
+            command: "uvx",
             args: ['--from', 'aeonlang', 'aeon', '--language-server-mode'],
         }
     }
@@ -46,10 +46,6 @@ export class AeonClient implements Disposable {
             await this.notificationHandler.showError(`Some Pre-Condition were not met : ${arePreconditionsMet.errors}`)
             return
         }
-
-        await this.notificationHandler.runWithProgress('Setting up Aeon...', async () => {
-            await this.aeonInstallationHandler.setupAeon()
-        })
 
         await this.notificationHandler.runWithProgress('Starting Aeon language server...', async () => {
             this.outputChannel.appendLine('Starting Aeon language server...')
