@@ -1,20 +1,24 @@
 import { Disposable, OutputChannel, workspace } from 'vscode'
 import { LanguageClientOptions } from 'vscode-languageclient'
-import { Executable, LanguageClient } from 'vscode-languageclient/node'
+import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/node'
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
+import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
 import { NotificationHandler } from './handlers/notificationHandler'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
     private outputChannel: OutputChannel
     private aeonInstallationHandler: AeonInstallationHandler
+    private diagnosticsHandler: DiagnosticsHandler
     private notificationHandler: NotificationHandler
     private running = false
 
     constructor(
         aeonInstallationHandler: AeonInstallationHandler,
+        diagnosticsHandler: DiagnosticsHandler,
     ) {
         this.aeonInstallationHandler = aeonInstallationHandler
+        this.diagnosticsHandler = diagnosticsHandler
         this.outputChannel = aeonInstallationHandler.getOutputChannel()
         this.notificationHandler = aeonInstallationHandler.getNotificationHandler()
 
@@ -24,16 +28,24 @@ export class AeonClient implements Disposable {
     }
 
     private getClientOptions() {
+        const middleware: Middleware = {
+            handleDiagnostics: (uri, diagnostics, next) => {
+                this.diagnosticsHandler.updateDiagnostics(uri, diagnostics)
+                next(uri, diagnostics)
+            },
+        }
         return {
             documentSelector: [{ language: 'aeon' }],
             synchronize: { fileEvents: workspace.createFileSystemWatcher('**/*.ae') },
+            outputChannel: this.outputChannel,
+            middleware: middleware,
         }
     }
 
     private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
         return {
-            command: aeonInstallationHandler.getAeonExecutablePath(),
-            args: ['-lsp'],
+            command: "uvx",
+            args: ['--from', 'aeonlang', 'aeon', '--language-server-mode'],
         }
     }
 
@@ -46,10 +58,6 @@ export class AeonClient implements Disposable {
             await this.notificationHandler.showError(`Some Pre-Condition were not met : ${arePreconditionsMet.errors}`)
             return
         }
-
-        await this.notificationHandler.runWithProgress('Setting up Aeon...', async () => {
-            await this.aeonInstallationHandler.setupAeon()
-        })
 
         await this.notificationHandler.runWithProgress('Starting Aeon language server...', async () => {
             this.outputChannel.appendLine('Starting Aeon language server...')

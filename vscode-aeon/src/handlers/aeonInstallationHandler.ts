@@ -4,6 +4,7 @@ import {Disposable, OutputChannel} from 'vscode'
 import {CommandResult} from '../utils/commandResult'
 import {NotificationHandler} from './notificationHandler'
 import {Platform, TerminalHandler} from './terminalHandler'
+import {useSystemInterpreter} from "../config";
 
 
 export interface PreConditionResult {
@@ -28,7 +29,15 @@ export class AeonInstallationHandler implements Disposable {
     }
 
     getAeonExecutablePath(): string {
-        return "uv";
+        const platform = this.terminalHandler.getPlatform()
+        const exeName = platform === Platform.Windows ? 'aeon.exe' : 'aeon'
+
+        if (useSystemInterpreter()) {
+            return exeName
+        }
+
+        const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
+        return path.join(this.envPath, exeDirectory, exeName)
     }
 
     getPythonExecutablePath(): string {
@@ -51,7 +60,38 @@ export class AeonInstallationHandler implements Disposable {
 
     async checkAeonInstallation(): Promise<CommandResult> {
         const executable = this.getAeonExecutablePath()
-        const command = `uvx --from aeonlang aeon -h`
+        const command = `${executable} -h`
+        return await this.terminalHandler.runCommand(command)
+    }
+
+    async setupAeon(): Promise<CommandResult> {
+        const venvResult = await this.createNewPythonEnvironment()
+        if (!venvResult.success) {
+            void this.notificationHandler.showError(`Failed to create virtual environment: ${venvResult.stderr}`)
+            throw new Error('Venv creation failed')
+        }
+        void this.notificationHandler.showInformation('Virtual environment created successfully.')
+
+        const installResult = await this.installAeon()
+        if (!installResult.success) {
+            void this.notificationHandler.showError(`Failed to install Aeon: ${installResult.stderr}`)
+            throw new Error('Aeon installation failed')
+        }
+        void this.notificationHandler.showInformation('Aeon installed successfully.')
+        return installResult
+    }
+
+
+    async installAeon(): Promise<CommandResult> {
+        const AEON_PACKAGE = 'aeonlang'
+
+        const pythonPath = this.getPythonExecutablePath()
+        const command = `uv pip install --python "${pythonPath}" "${AEON_PACKAGE}"`
+        return await this.terminalHandler.runCommand(command)
+    }
+
+    async createNewPythonEnvironment(): Promise<CommandResult> {
+        const command = `uv venv "${this.envPath}"`
         return await this.terminalHandler.runCommand(command)
     }
 
