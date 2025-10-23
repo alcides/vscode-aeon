@@ -32,7 +32,7 @@ export class AeonClient implements Disposable {
 
     private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
         return {
-            command: aeonInstallationHandler.getAeonExecutablePath(),
+            command: "uv",
             args: ['--from', 'aeonlang', 'aeon', '--lsp'],
         }
     }

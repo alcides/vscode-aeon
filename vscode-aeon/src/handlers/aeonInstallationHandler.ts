@@ -27,10 +27,6 @@ export class AeonInstallationHandler implements Disposable {
     dispose(): void {
     }
 
-    getAeonExecutablePath(): string {
-        return "uv";
-    }
-
     getPythonExecutablePath(): string {
         const platform = this.terminalHandler.getPlatform()
         const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
@@ -50,7 +46,6 @@ export class AeonInstallationHandler implements Disposable {
     }
 
     async checkAeonInstallation(): Promise<CommandResult> {
-        const executable = this.getAeonExecutablePath()
         const command = `uvx --from aeonlang aeon -h`
         return await this.terminalHandler.runCommand(command)
     }
