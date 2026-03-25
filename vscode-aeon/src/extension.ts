@@ -19,6 +19,12 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(aeonServices.editorOutputChannel)
     context.subscriptions.push(aeonServices.diagnosticsHandler)
     context.subscriptions.push(aeonServices.projectHandler)
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('aeon.synthesize', async (...args: unknown[]) => {
+            await aeonServices!.aeonClient.sendExecuteCommand('aeon.synthesize', args)
+        }),
+    )
 }
 
 export function deactivate() {

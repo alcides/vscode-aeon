@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.75.0"
@@ -70,6 +70,11 @@
       {
         "command": "aeon.troubleshooting.showOutput",
         "title": "Troubleshooting : Show Output",
+        "category": "Aeon"
+      },
+      {
+        "command": "aeon.synthesize",
+        "title": "Synthesize",
         "category": "Aeon"
       }
     ],

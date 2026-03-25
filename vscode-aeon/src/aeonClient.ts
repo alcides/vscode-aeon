@@ -1,5 +1,5 @@
 import { Disposable, OutputChannel, workspace } from 'vscode'
-import { LanguageClientOptions } from 'vscode-languageclient'
+import { ExecuteCommandRequest, LanguageClientOptions } from 'vscode-languageclient'
 import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/node'
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
@@ -65,6 +65,10 @@ export class AeonClient implements Disposable {
             void this.notificationHandler.showInformation('Aeon language server started successfully.')
             this.running = true
         })
+    }
+
+    async sendExecuteCommand(command: string, args: unknown[]): Promise<unknown> {
+        return this.client.sendRequest(ExecuteCommandRequest.type, { command, arguments: args })
     }
 
     dispose(): void {
