@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.75.0"
