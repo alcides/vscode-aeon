@@ -33,6 +33,11 @@
           "type": "boolean",
           "default": false,
           "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
+        },
+        "aeon.localPackagePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a local aeon Python package folder to use instead of the published PyPI package. When set, the language server is launched with 'uvx --from <path>' instead of 'uvx --from aeonlang'."
         }
       }
     },
