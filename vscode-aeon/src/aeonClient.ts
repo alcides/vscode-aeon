@@ -53,8 +53,17 @@ export class AeonClient implements Disposable {
         }
         return {
             command: "uvx",
-            args: ['--from', 'aeonlang', 'aeon', '--language-server-mode'],
+            args: ['--refresh', '--from', 'aeonlang', 'aeon', '--language-server-mode'],
         }
+    }
+
+    async restart(): Promise<void> {
+        if (this.running) {
+            this.outputChannel.appendLine('Stopping Aeon language server...')
+            await this.client.stop()
+            this.running = false
+        }
+        await this.start()
     }
 
     async start(): Promise<void> {

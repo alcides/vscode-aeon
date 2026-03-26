@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.75.0"
@@ -81,6 +81,11 @@
         "command": "aeon.synthesize",
         "title": "Synthesize",
         "category": "Aeon"
+      },
+      {
+        "command": "aeon.restartServer",
+        "title": "Restart Server",
+        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -121,6 +126,9 @@
         },
         {
           "command": "aeon.troubleshooting.showOutput"
+        },
+        {
+          "command": "aeon.restartServer"
         }
       ]
     },
