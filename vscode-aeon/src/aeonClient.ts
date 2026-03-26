@@ -4,6 +4,7 @@ import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/no
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
 import { NotificationHandler } from './handlers/notificationHandler'
+import { localPackagePath } from './config'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
@@ -43,6 +44,13 @@ export class AeonClient implements Disposable {
     }
 
     private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
+        const pkgPath = localPackagePath()
+        if (pkgPath) {
+            return {
+                command: "uvx",
+                args: ['--from', pkgPath, 'aeon', '--language-server-mode'],
+            }
+        }
         return {
             command: "uvx",
             args: ['--from', 'aeonlang', 'aeon', '--language-server-mode'],

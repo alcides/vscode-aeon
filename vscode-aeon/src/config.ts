@@ -17,3 +17,8 @@ export function useSystemInterpreter(): boolean {
 
     return useSystemInterpreter === true
 }
+
+export function localPackagePath(): string {
+    const p: string | undefined = vscode.workspace.getConfiguration('aeon').get('localPackagePath')
+    return p?.trim() ?? ''
+}
