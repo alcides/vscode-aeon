@@ -38,6 +38,23 @@
           "type": "string",
           "default": "",
           "description": "Path to a local aeon Python package folder to use instead of the published PyPI package. When set, the language server is launched with 'uvx --from <path>' instead of 'uvx --from aeonlang'."
+        },
+        "aeon.defaultSynthesizer": {
+          "type": "string",
+          "default": "gp",
+          "enum": ["gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
+          "enumDescriptions": [
+            "Genetic programming (default)",
+            "Enumerative search",
+            "Random search",
+            "Synquid type-directed enumerative synthesis",
+            "Hill climbing",
+            "One-plus-one evolutionary strategy",
+            "SMT-guided synthesis via z3 (best for arithmetic/boolean constraints)",
+            "Decision tree regressor fitted from @csv_data examples",
+            "LLM-based synthesis (requires Ollama)"
+          ],
+          "description": "Preferred synthesizer shown first in the Synthesize code-action menu when a hole is selected."
         }
       }
     },
