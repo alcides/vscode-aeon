@@ -22,3 +22,8 @@ export function localPackagePath(): string {
     const p: string | undefined = vscode.workspace.getConfiguration('aeon').get('localPackagePath')
     return p?.trim() ?? ''
 }
+
+export function defaultSynthesizer(): string {
+    const s: string | undefined = vscode.workspace.getConfiguration('aeon').get('defaultSynthesizer')
+    return s?.trim() || 'gp'
+}
