@@ -289,7 +289,7 @@
         },
         {
           "name": "keyword.operator.assignment.aeon",
-          "match": "="
+          "match": ":="
         },
         {
           "name": "punctuation.separator.type",
@@ -301,7 +301,7 @@
         },
         {
           "name": "keyword.operator.comparison.aeon",
-          "match": "(==|>=|<=|!=|>|<|-->)"
+          "match": "(==|>=|<=|!=|>|<|-->|=)"
         },
         {
           "name": "keyword.operator.arithmetic.integer.aeon",
