@@ -77,64 +77,83 @@ repository:
 
   lambdaFunctions:
     patterns:
-      - match: '(\\|λ)\s*([a-zA-Z0-9_]+)'
-        captures:
-          "1": { name: keyword.operator.lambda.symbol.aeon }
-          "2": { name: variable.parameter.aeon }
+      # Term-level lambda: ``fun x => ...`` or ``fun (x: T) => ...``.
+      - match: '\b(fun)\b'
+        name: keyword.control.lambda.aeon
+      # Unicode lambda: ``λ x => ...`` (entered via the input method as \lambda).
+      - match: 'λ'
+        name: keyword.control.lambda.aeon
 
   kindFunctions:
     patterns:
-      - match: '(Λ)\s*([a-z][a-zA-Z0-9_]*)'
+      # Type/refinement abstraction: ``Λ a : k => ...`` / ``Λ <p : ...> => ...``.
+      - match: '(Λ)\s*([a-z][a-zA-Z0-9_]*)?'
         captures:
           "1": { name: keyword.operator.kind.lambda.symbol.aeon }
           "2": { name: kind.parameter.function.lambda.aeon }
+
   keywords:
     patterns:
       - include: "#imports"
+      - include: "#declarations"
+      - include: "#macros"
       - include: "#controlKeywords"
 
   imports:
     patterns:
-      - match: '^(import)\s+(.+?)\s+from\s+"(.+)"'
-        captures:
-          "1": { name: keyword.control.import.aeon }
-          "2": { name: entity.name.function.aeon }
-          "3": { name: entity.name.namespace.aeon }
-      - match: '^(import)\s+"(.+)"'
+      # ``import Foo.Bar;`` / ``import Foo.Bar (a, b);`` / ``open Foo.Bar;``
+      - match: '\b(import|open)\b\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*)'
         captures:
           "1": { name: keyword.control.import.aeon }
           "2": { name: entity.name.namespace.aeon }
 
-  controlKeywords:
+  declarations:
     patterns:
-      - match: '\bin\b'
-        name: keyword.control.aeon
-      - match: '\b(let)\s+([a-zA-Z0-9_]+)\b'
-        captures:
-          "1": { name: keyword.declaration.let.aeon }
-          "2": { name: variable.declaration.aeon }
-      - match: '\b(def)\s+([a-zA-Z0-9_]+)\b'
+      # ``def name ...`` and method definitions ``def Int.toString ...``.
+      - match: '\b(def)\s+([A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?)'
         captures:
           "1": { name: keyword.declaration.function.aeon }
           "2": { name: entity.name.function.aeon }
-      - match: '\b(type)\s+([a-zA-Z0-9_]+)\b'
+      # Type-introducing declarations followed by the type name.
+      - match: '\b(type|inductive|class)\s+([A-Za-z_][A-Za-z0-9_]*)'
         captures:
           "1": { name: keyword.declaration.type.aeon }
           "2": { name: entity.name.type.aeon }
-      - match: '\b(@)([a-zA-Z0-9_]+)\b'
+      # Declarations whose name (if any) is parsed separately.
+      - match: '\b(instance|axiom)\b'
+        name: keyword.declaration.aeon
+      # ``let 1 x = ...`` / ``let omega x = ...`` (QTT multiplicity binder).
+      - match: '\b(let)\s+(0|1|omega|ω)\s+([A-Za-z_][A-Za-z0-9_]*)'
         captures:
-          "1": { name: entity.name.tag.aeon }
-          "2": { name: entity.name.macro.aeon }
-      - match: '\b(forall)\s+([a-zA-Z0-9_]+)\b'
+          "1": { name: keyword.declaration.let.aeon }
+          "2": { name: storage.modifier.multiplicity.aeon }
+          "3": { name: variable.declaration.aeon }
+      - match: '\b(let)\s+([A-Za-z_][A-Za-z0-9_]*)'
         captures:
-          "1": { name: keyword.universal.quantifier.aeon }
-          "2": { name: entity.polymorphic.type.macro.aeon }
+          "1": { name: keyword.declaration.let.aeon }
+          "2": { name: variable.declaration.aeon }
+
+  macros:
+    patterns:
+      # Decorator macros: ``@minimize_int(...)``, ``@example``, ...
+      - match: '(@)([A-Za-z_][A-Za-z0-9_]*)'
+        captures:
+          "1": { name: punctuation.definition.tag.aeon }
+          "2": { name: entity.name.tag.macro.aeon }
+
+  controlKeywords:
+    patterns:
+      - match: '\b(forall)\b'
+        name: keyword.universal.quantifier.aeon
+      # Unicode quantifiers: ``∀ x, ...`` / ``∃ x, ...``.
       - match: '(∀|∃)\s*([a-zA-Z0-9_]+)'
         captures:
           "1": { name: keyword.universal.quantifier.aeon }
           "2": { name: entity.polymorphic.type.macro.aeon }
-      - match: '\b(if|then|else)\b'
-        name: keyword.control.conditional.aeon
+      - match: '\b(if|then|else|match|with|in|by)\b'
+        name: keyword.control.aeon
+      - match: '\b(where|extends|decreasing_by)\b'
+        name: keyword.control.aeon
 
   operators:
     patterns:
@@ -142,18 +161,22 @@ repository:
         match: '->'
       - name: keyword.operator.lambda.kind.arrow.aeon
         match: '=>'
+      - name: keyword.operator.implication.aeon
+        match: '-->'
       - name: keyword.operator.assignment.aeon
         match: ':='
+      - name: keyword.operator.application.dollar.aeon
+        match: '\$'
       - name: punctuation.separator.type
         match: ':'
       - name: keyword.operator.logical.aeon
         match: (\|\||&&|!)
+      # Lean-style: ``:=`` is assignment (above); ``=`` and ``==`` are equality.
       - name: keyword.operator.comparison.aeon
-        match: (==|>=|<=|!=|>|<|-->|=)
-      - name: keyword.operator.arithmetic.integer.aeon
+        match: (==|>=|<=|!=|>|<|=)
+      - name: keyword.operator.arithmetic.aeon
         match: (\+|-|\*|/|%)
-      - name: keyword.operator.arithmetic.float.aeon
-        match: (\+|-|\*|/|%).
+      # Unicode operators (entered via the input method, e.g. \to, \and, \le).
       - name: keyword.operator.lambda.function.arrow.aeon
         match: (→|↦|⟶)
       - name: keyword.operator.lambda.kind.arrow.aeon
@@ -162,7 +185,7 @@ repository:
         match: (∧|∨|¬)
       - name: keyword.operator.comparison.aeon
         match: (≤|≥|≠|≡|≈|∈|∉|∋|⊆|⊂|⊇|⊃)
-      - name: keyword.operator.arithmetic.integer.aeon
+      - name: keyword.operator.arithmetic.aeon
         match: (×|÷|⋅|∘|±|∓)
       - name: punctuation.terminator.statement.aeon
         match: ';'
@@ -172,4 +195,4 @@ repository:
       - name: storage.type.primitive.aeon
         match: '\b(Unit|Int|Float|String|Bool)\b'
       - name: keyword.operator.pipe.aeon
-        match: '\b(where|\|)\b'
+        match: '\|'

@@ -95,11 +95,6 @@
         "category": "Aeon"
       },
       {
-        "command": "aeon.synthesize",
-        "title": "Synthesize",
-        "category": "Aeon"
-      },
-      {
         "command": "aeon.restartServer",
         "title": "Restart Server",
         "category": "Aeon"

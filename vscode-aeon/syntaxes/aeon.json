@@ -144,22 +144,19 @@
     "lambdaFunctions": {
       "patterns": [
         {
-          "match": "(\\\\|λ)\\s*([a-zA-Z0-9_]+)",
-          "captures": {
-            "1": {
-              "name": "keyword.operator.lambda.symbol.aeon"
-            },
-            "2": {
-              "name": "variable.parameter.aeon"
-            }
-          }
+          "match": "\\b(fun)\\b",
+          "name": "keyword.control.lambda.aeon"
+        },
+        {
+          "match": "λ",
+          "name": "keyword.control.lambda.aeon"
         }
       ]
     },
     "kindFunctions": {
       "patterns": [
         {
-          "match": "(Λ)\\s*([a-z][a-zA-Z0-9_]*)",
+          "match": "(\u039b)\\s*([a-z][a-zA-Z0-9_]*)?",
           "captures": {
             "1": {
               "name": "keyword.operator.kind.lambda.symbol.aeon"
@@ -177,6 +174,12 @@
           "include": "#imports"
         },
         {
+          "include": "#declarations"
+        },
+        {
+          "include": "#macros"
+        },
+        {
           "include": "#controlKeywords"
         }
       ]
@@ -184,21 +187,7 @@
     "imports": {
       "patterns": [
         {
-          "match": "^(import)\\s+(.+?)\\s+from\\s+\"(.+)\"",
-          "captures": {
-            "1": {
-              "name": "keyword.control.import.aeon"
-            },
-            "2": {
-              "name": "entity.name.function.aeon"
-            },
-            "3": {
-              "name": "entity.name.namespace.aeon"
-            }
-          }
-        },
-        {
-          "match": "^(import)\\s+\"(.+)\"",
+          "match": "\\b(import|open)\\b\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)",
           "captures": {
             "1": {
               "name": "keyword.control.import.aeon"
@@ -210,25 +199,10 @@
         }
       ]
     },
-    "controlKeywords": {
+    "declarations": {
       "patterns": [
         {
-          "match": "\\bin\\b",
-          "name": "keyword.control.aeon"
-        },
-        {
-          "match": "\\b(let)\\s+([a-zA-Z0-9_]+)\\b",
-          "captures": {
-            "1": {
-              "name": "keyword.declaration.let.aeon"
-            },
-            "2": {
-              "name": "variable.declaration.aeon"
-            }
-          }
-        },
-        {
-          "match": "\\b(def)\\s+([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(def)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)?)",
           "captures": {
             "1": {
               "name": "keyword.declaration.function.aeon"
@@ -239,7 +213,7 @@
           }
         },
         {
-          "match": "\\b(type)\\s+([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(type|inductive|class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
             "1": {
               "name": "keyword.declaration.type.aeon"
@@ -250,26 +224,56 @@
           }
         },
         {
-          "match": "\\b(@)([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(instance|axiom)\\b",
+          "name": "keyword.declaration.aeon"
+        },
+        {
+          "match": "\\b(let)\\s+(0|1|omega|\u03c9)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
             "1": {
-              "name": "entity.name.tag.aeon"
+              "name": "keyword.declaration.let.aeon"
             },
             "2": {
-              "name": "entity.name.macro.aeon"
+              "name": "storage.modifier.multiplicity.aeon"
+            },
+            "3": {
+              "name": "variable.declaration.aeon"
             }
           }
         },
         {
-          "match": "\\b(forall)\\s+([a-zA-Z0-9_]+)\\b",
+          "match": "\\b(let)\\s+([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
             "1": {
-              "name": "keyword.universal.quantifier.aeon"
+              "name": "keyword.declaration.let.aeon"
             },
             "2": {
-              "name": "entity.polymorphic.type.macro.aeon"
+              "name": "variable.declaration.aeon"
             }
           }
+        }
+      ]
+    },
+    "macros": {
+      "patterns": [
+        {
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.tag.aeon"
+            },
+            "2": {
+              "name": "entity.name.tag.macro.aeon"
+            }
+          }
+        }
+      ]
+    },
+    "controlKeywords": {
+      "patterns": [
+        {
+          "match": "\\b(forall)\\b",
+          "name": "keyword.universal.quantifier.aeon"
         },
         {
           "match": "(∀|∃)\\s*([a-zA-Z0-9_]+)",
@@ -283,8 +287,12 @@
           }
         },
         {
-          "match": "\\b(if|then|else)\\b",
-          "name": "keyword.control.conditional.aeon"
+          "match": "\\b(if|then|else|match|with|in|by)\\b",
+          "name": "keyword.control.aeon"
+        },
+        {
+          "match": "\\b(where|extends|decreasing_by)\\b",
+          "name": "keyword.control.aeon"
         }
       ]
     },
@@ -299,8 +307,16 @@
           "match": "=>"
         },
         {
+          "name": "keyword.operator.implication.aeon",
+          "match": "-->"
+        },
+        {
           "name": "keyword.operator.assignment.aeon",
           "match": ":="
+        },
+        {
+          "name": "keyword.operator.application.dollar.aeon",
+          "match": "\\$"
         },
         {
           "name": "punctuation.separator.type",
@@ -312,15 +328,11 @@
         },
         {
           "name": "keyword.operator.comparison.aeon",
-          "match": "(==|>=|<=|!=|>|<|-->|=)"
+          "match": "(==|>=|<=|!=|>|<|=)"
         },
         {
-          "name": "keyword.operator.arithmetic.integer.aeon",
+          "name": "keyword.operator.arithmetic.aeon",
           "match": "(\\+|-|\\*|/|%)"
-        },
-        {
-          "name": "keyword.operator.arithmetic.float.aeon",
-          "match": "(\\+|-|\\*|/|%)."
         },
         {
           "name": "keyword.operator.lambda.function.arrow.aeon",
@@ -339,7 +351,7 @@
           "match": "(≤|≥|≠|≡|≈|∈|∉|∋|⊆|⊂|⊇|⊃)"
         },
         {
-          "name": "keyword.operator.arithmetic.integer.aeon",
+          "name": "keyword.operator.arithmetic.aeon",
           "match": "(×|÷|⋅|∘|±|∓)"
         },
         {
@@ -356,7 +368,7 @@
         },
         {
           "name": "keyword.operator.pipe.aeon",
-          "match": "\\b(where|\\|)\\b"
+          "match": "\\|"
         }
       ]
     }
