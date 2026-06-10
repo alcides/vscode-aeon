@@ -77,7 +77,7 @@ repository:
 
   lambdaFunctions:
     patterns:
-      - match: '(\\)\s*([a-zA-Z0-9_]+)'
+      - match: '(\\|λ)\s*([a-zA-Z0-9_]+)'
         captures:
           "1": { name: keyword.operator.lambda.symbol.aeon }
           "2": { name: variable.parameter.aeon }
@@ -129,6 +129,10 @@ repository:
         captures:
           "1": { name: keyword.universal.quantifier.aeon }
           "2": { name: entity.polymorphic.type.macro.aeon }
+      - match: '(∀|∃)\s*([a-zA-Z0-9_]+)'
+        captures:
+          "1": { name: keyword.universal.quantifier.aeon }
+          "2": { name: entity.polymorphic.type.macro.aeon }
       - match: '\b(if|then|else)\b'
         name: keyword.control.conditional.aeon
 
@@ -150,6 +154,16 @@ repository:
         match: (\+|-|\*|/|%)
       - name: keyword.operator.arithmetic.float.aeon
         match: (\+|-|\*|/|%).
+      - name: keyword.operator.lambda.function.arrow.aeon
+        match: (→|↦|⟶)
+      - name: keyword.operator.lambda.kind.arrow.aeon
+        match: (⇒|⟹|⇔|↔)
+      - name: keyword.operator.logical.aeon
+        match: (∧|∨|¬)
+      - name: keyword.operator.comparison.aeon
+        match: (≤|≥|≠|≡|≈|∈|∉|∋|⊆|⊂|⊇|⊃)
+      - name: keyword.operator.arithmetic.integer.aeon
+        match: (×|÷|⋅|∘|±|∓)
       - name: punctuation.terminator.statement.aeon
         match: ';'
 

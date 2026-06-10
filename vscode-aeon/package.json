@@ -38,6 +38,23 @@
           "type": "string",
           "default": "",
           "description": "Path to a local aeon Python package folder to use instead of the published PyPI package. When set, the language server is launched with 'uvx --from <path>' instead of 'uvx --from aeonlang'."
+        },
+        "aeon.input.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable the Lean-style Unicode input method. Type the leader followed by an abbreviation (e.g. \\to) to insert a Unicode symbol (→)."
+        },
+        "aeon.input.leader": {
+          "type": "string",
+          "default": "\\",
+          "maxLength": 1,
+          "minLength": 1,
+          "description": "The character that starts a Unicode abbreviation. Defaults to the backslash."
+        },
+        "aeon.input.eagerReplacement": {
+          "type": "boolean",
+          "default": true,
+          "description": "Replace an abbreviation as soon as it is unambiguous, without waiting for a terminating character."
         }
       }
     },
@@ -86,6 +103,11 @@
         "command": "aeon.restartServer",
         "title": "Restart Server",
         "category": "Aeon"
+      },
+      {
+        "command": "aeon.input.convert",
+        "title": "Input : Convert Current Abbreviation",
+        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -129,6 +151,10 @@
         },
         {
           "command": "aeon.restartServer"
+        },
+        {
+          "command": "aeon.input.convert",
+          "when": "editorLangId == aeon"
         }
       ]
     },
@@ -214,7 +240,8 @@
     ]
   },
   "activationEvents": [
-    "onViewWelcome:aeon.welcome"
+    "onViewWelcome:aeon.welcome",
+    "onLanguage:aeon"
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",

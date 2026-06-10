@@ -31,6 +31,36 @@ def main (i:Int) : Unit {
 ```
 
 
+### Unicode input
+
+Like [Lean](https://leanprover.github.io/), the Aeon VS Code extension lets you type
+Unicode symbols using backslash abbreviations. Start an abbreviation with the leader
+character `\` and type its name; the extension replaces it with the corresponding
+symbol as you type (for example after a space) or when you pick it from the completion
+list.
+
+| Type | Get | | Type | Get |
+|--------------|-----|---|--------------|-----|
+| `\to`        | `→` | | `\forall`    | `∀` |
+| `\lambda`    | `λ` | | `\exists`    | `∃` |
+| `\and`       | `∧` | | `\or`        | `∨` |
+| `\le` `\ge`  | `≤` `≥` | | `\ne`    | `≠` |
+| `\alpha`     | `α` | | `\beta`      | `β` |
+| `\R` `\N`    | `ℝ` `ℕ` | | `\_1` `\^2` | `₁` `²` |
+
+For instance, the `sqrt` example can be written with Unicode arrows:
+
+```
+def sqrt : (i: {x:Int | x > 0} ) → Float := native "__import__('math').sqrt";
+```
+
+The input method can be tuned through the `aeon.input.*` settings: `aeon.input.enabled`
+turns it off, `aeon.input.leader` changes the leader character, and
+`aeon.input.eagerReplacement` controls whether unambiguous abbreviations are replaced
+immediately. The command **Aeon: Input : Convert Current Abbreviation** converts the
+abbreviation currently being typed.
+
+
 
 Authors
 ----------
