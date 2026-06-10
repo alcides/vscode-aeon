@@ -23,7 +23,7 @@ The documentation is available at [https://alcides.github.io/aeon](https://alcid
 In this example, you can see the refined type `{x:Int | x > 0}` that represents all integers that are greater than 0. You can also see an example of Python FFI, where a python valid expression can be written as string and passed as the argument to the `native` function.
 
 ```
-def sqrt : (i: {x:Int | x > 0} ) -> Float = native "__import__('math').sqrt";
+def sqrt : (i: {x:Int | x > 0} ) -> Float := native "__import__('math').sqrt";
 
 def main (i:Int) : Unit {
     print (sqrt (-25)) # This is a type-checking error!

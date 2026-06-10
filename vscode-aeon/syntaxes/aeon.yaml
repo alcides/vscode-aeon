@@ -139,13 +139,13 @@ repository:
       - name: keyword.operator.lambda.kind.arrow.aeon
         match: '=>'
       - name: keyword.operator.assignment.aeon
-        match: '='
+        match: ':='
       - name: punctuation.separator.type
         match: ':'
       - name: keyword.operator.logical.aeon
         match: (\|\||&&|!)
       - name: keyword.operator.comparison.aeon
-        match: (==|>=|<=|!=|>|<|-->)
+        match: (==|>=|<=|!=|>|<|-->|=)
       - name: keyword.operator.arithmetic.integer.aeon
         match: (\+|-|\*|/|%)
       - name: keyword.operator.arithmetic.float.aeon
