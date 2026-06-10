@@ -7,10 +7,15 @@
  * ------------------------------------------------------------------------------------------ */
 import * as vscode from 'vscode'
 import { AeonServices, createAllServices } from './utils/handlerUtils'
+import { AbbreviationFeature } from './abbreviation/abbreviationFeature'
 
 let aeonServices: AeonServices | undefined
 
 export async function activate(context: vscode.ExtensionContext) {
+    // Lean-style Unicode input method (e.g. `\to` -> `→`). Registered before the
+    // language client so it is available as soon as an Aeon file is opened.
+    context.subscriptions.push(new AbbreviationFeature(context))
+
     aeonServices = createAllServices(context)
     await aeonServices.aeonClient.start()
 

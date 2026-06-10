@@ -146,6 +146,10 @@
         {
           "match": "\\b(fun)\\b",
           "name": "keyword.control.lambda.aeon"
+        },
+        {
+          "match": "λ",
+          "name": "keyword.control.lambda.aeon"
         }
       ]
     },
@@ -272,6 +276,17 @@
           "name": "keyword.universal.quantifier.aeon"
         },
         {
+          "match": "(∀|∃)\\s*([a-zA-Z0-9_]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.universal.quantifier.aeon"
+            },
+            "2": {
+              "name": "entity.polymorphic.type.macro.aeon"
+            }
+          }
+        },
+        {
           "match": "\\b(if|then|else|match|with|in|by)\\b",
           "name": "keyword.control.aeon"
         },
@@ -318,6 +333,26 @@
         {
           "name": "keyword.operator.arithmetic.aeon",
           "match": "(\\+|-|\\*|/|%)"
+        },
+        {
+          "name": "keyword.operator.lambda.function.arrow.aeon",
+          "match": "(→|↦|⟶)"
+        },
+        {
+          "name": "keyword.operator.lambda.kind.arrow.aeon",
+          "match": "(⇒|⟹|⇔|↔)"
+        },
+        {
+          "name": "keyword.operator.logical.aeon",
+          "match": "(∧|∨|¬)"
+        },
+        {
+          "name": "keyword.operator.comparison.aeon",
+          "match": "(≤|≥|≠|≡|≈|∈|∉|∋|⊆|⊂|⊇|⊃)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.aeon",
+          "match": "(×|÷|⋅|∘|±|∓)"
         },
         {
           "name": "punctuation.terminator.statement.aeon",
