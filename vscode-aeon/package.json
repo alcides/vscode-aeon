@@ -253,7 +253,7 @@
     "@types/node": "^24",
     "@types/vscode": "^1.116.0",
     "@vscode/vsce": "^3.6.0",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.28.1",
     "eslint": "^9.13.0",
     "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
