@@ -4,6 +4,17 @@
     "version": "2.0.0",
     "tasks": [
         {
+            // One-shot esbuild bundle; exits cleanly so F5's preLaunchTask
+            // does not hang waiting on a background watcher.
+            "type": "npm",
+            "script": "compile",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "group": "build"
+        },
+        {
             "type": "npm",
             "script": "watch",
             "problemMatcher": "$tsc-watch",

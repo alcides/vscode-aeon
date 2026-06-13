@@ -6,6 +6,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            // Compiles once (clean exit) then opens the Extension Development
+            // Host with the Aeon extension — including the Info View — loaded.
+            // Press F5 to use this. Point the server at a local checkout with
+            // the "aeon.localPackagePath" setting in the dev-host window.
+            "name": "Run Aeon Info View Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: compile"
+        },
+        {
             "name": "Run Extension",
             "type": "extensionHost",
             "request": "launch",
