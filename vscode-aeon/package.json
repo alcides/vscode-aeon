@@ -75,6 +75,11 @@
             "LLM-based synthesis (requires Ollama)"
           ],
           "description": "Preferred synthesizer shown first in the Synthesize code-action menu when a hole is selected."
+        },
+        "aeon.infoView.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
         }
       }
     },
@@ -123,6 +128,16 @@
         "command": "aeon.input.convert",
         "title": "Input : Convert Current Abbreviation",
         "category": "Aeon"
+      },
+      {
+	"command": "aeon.infoView.toggle",
+	"title": "Info View : Toggle",
+	"category": "Aeon"
+      },
+      {
+	"command": "aeon.infoView.open",
+	"title": "Info View : Open",
+	"category": "Aeon"
       }
     ],
     "grammars": [
@@ -170,6 +185,12 @@
         {
           "command": "aeon.input.convert",
           "when": "editorLangId == aeon"
+	},
+	{
+	  "command": "aeon.infoView.toggle"
+	},
+	{
+	  "command": "aeon.infoView.open"
         }
       ]
     },
