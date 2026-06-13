@@ -15,10 +15,13 @@ When synthesizing a hole the following backends are available via the *Refactor*
 
 | Identifier | Description |
 |---|---|
+| `tdsyn_enumerative` | Type-directed synthesis (breadth-first search with SMT-solved leaves) |
+| `tdsyn` | Type-directed synthesis (alias for `tdsyn_enumerative`) |
+| `tactics` | Random tactic search (Lean-style) |
 | `gp` | Genetic programming *(default)* |
 | `enumerative` | Exhaustive enumerative search |
 | `random_search` | Random program search |
-| `synquid` | SMT-based Synquid synthesis |
+| `synquid` | Synquid-style type-directed enumerative synthesis |
 | `hc` | Hill climbing |
 | `1p1` | One-plus-one evolutionary strategy |
 | `smt` | SMT-guided synthesis via z3 (best for arithmetic/boolean constraints) |

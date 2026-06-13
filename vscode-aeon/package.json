@@ -59,12 +59,15 @@
         "aeon.defaultSynthesizer": {
           "type": "string",
           "default": "gp",
-          "enum": ["gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
+          "enum": ["tdsyn_enumerative", "tdsyn", "tactics", "gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
           "enumDescriptions": [
+            "Type-directed synthesis (breadth-first search with SMT-solved leaves)",
+            "Type-directed synthesis (alias for tdsyn_enumerative)",
+            "Random tactic search (Lean-style)",
             "Genetic programming (default)",
             "Enumerative search",
             "Random search",
-            "Synquid type-directed enumerative synthesis",
+            "Synquid-style type-directed enumerative synthesis",
             "Hill climbing",
             "One-plus-one evolutionary strategy",
             "SMT-guided synthesis via z3 (best for arithmetic/boolean constraints)",
