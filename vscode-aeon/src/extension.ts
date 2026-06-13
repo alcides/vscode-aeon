@@ -8,6 +8,7 @@
 import * as vscode from 'vscode'
 import { AeonServices, createAllServices } from './utils/handlerUtils'
 import { AbbreviationFeature } from './abbreviation/abbreviationFeature'
+import { InfoViewProvider } from './infoview/infoViewProvider'
 
 let aeonServices: AeonServices | undefined
 
@@ -28,7 +29,17 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('aeon.restartServer', () => aeonServices!.aeonClient.restart())
     )
 
-
+    // Lean-style info view: goal, expression type and typing context at the cursor.
+    const infoViewProvider = new InfoViewProvider(aeonServices.aeonClient)
+    context.subscriptions.push(infoViewProvider)
+    context.subscriptions.push(
+	vscode.commands.registerCommand('aeon.infoView.toggle', () => infoViewProvider.toggle()),
+	vscode.commands.registerCommand('aeon.infoView.open', () => infoViewProvider.open()),
+    )
+    const autoOpen = () => vscode.workspace.getConfiguration('aeon').get<boolean>('infoView.autoOpen') === true
+    if (autoOpen() && vscode.window.activeTextEditor?.document.languageId === 'aeon') {
+	infoViewProvider.open()
+    }
 }
 
 export function deactivate() {

@@ -55,6 +55,11 @@
           "type": "boolean",
           "default": true,
           "description": "Replace an abbreviation as soon as it is unambiguous, without waiting for a terminating character."
+	},
+	"aeon.infoView.autoOpen": {
+	  "type": "boolean",
+	  "default": true,
+	  "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
         }
       }
     },
@@ -103,6 +108,16 @@
         "command": "aeon.input.convert",
         "title": "Input : Convert Current Abbreviation",
         "category": "Aeon"
+      },
+      {
+	"command": "aeon.infoView.toggle",
+	"title": "Info View : Toggle",
+	"category": "Aeon"
+      },
+      {
+	"command": "aeon.infoView.open",
+	"title": "Info View : Open",
+	"category": "Aeon"
       }
     ],
     "grammars": [
@@ -150,6 +165,12 @@
         {
           "command": "aeon.input.convert",
           "when": "editorLangId == aeon"
+	},
+	{
+	  "command": "aeon.infoView.toggle"
+	},
+	{
+	  "command": "aeon.infoView.open"
         }
       ]
     },

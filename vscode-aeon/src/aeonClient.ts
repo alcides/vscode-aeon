@@ -57,6 +57,14 @@ export class AeonClient implements Disposable {
         }
     }
 
+    /** Send a custom request (e.g. `aeon/infoView`) to the language server. */
+    async sendRequest<R>(method: string, params: unknown): Promise<R> {
+	if (!this.running) {
+	    throw new Error('Aeon language server is not running')
+	}
+	return await this.client.sendRequest<R>(method, params)
+    }
+
     async restart(): Promise<void> {
         if (this.running) {
             this.outputChannel.appendLine('Stopping Aeon language server...')
