@@ -4,7 +4,7 @@ import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/no
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
 import { NotificationHandler } from './handlers/notificationHandler'
-import { localPackagePath } from './config'
+import { localPackagePath, defaultSynthesizer } from './config'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
@@ -33,6 +33,18 @@ export class AeonClient implements Disposable {
             handleDiagnostics: (uri, diagnostics, next) => {
                 this.diagnosticsHandler.updateDiagnostics(uri, diagnostics)
                 next(uri, diagnostics)
+            },
+            provideCodeActions: async (document, range, context, token, next) => {
+                const actions = await next(document, range, context, token)
+                if (!Array.isArray(actions)) return actions
+                const preferred = defaultSynthesizer()
+                return [...actions].sort((a, b) => {
+                    const aTitle = 'title' in a ? (a.title as string) : ''
+                    const bTitle = 'title' in b ? (b.title as string) : ''
+                    const aMatch = aTitle.includes(`with ${preferred}`) ? -1 : 0
+                    const bMatch = bTitle.includes(`with ${preferred}`) ? 1 : 0
+                    return aMatch + bMatch
+                })
             },
         }
         return {
