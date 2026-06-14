@@ -2,16 +2,19 @@ import * as vscode from 'vscode'
 import { AeonClient } from '../aeonClient'
 
 /** Wire format of the custom `aeon/infoView` LSP request (see
- * `aeon/lsp/infoview.py` in the compiler repository). All positions are
- * 0-indexed. */
+ * `aeon/lsp/infoview.py` in the compiler repository). Each context entry is a
+ * base `type` plus an optional refinement `predicate` already rendered with the
+ * binding's outer name (`v:{k:Int | k > 0}` arrives as type `Int`, predicate
+ * `v > 0`). `target` is the turnstile goal: a hole's goal type, or the type of
+ * the expression under the cursor. */
 interface InfoEntry {
     name: string
     type: string
+    predicate: string | null
 }
 
 interface InfoViewResponse {
-    expression: { type: string; range: [number, number, number, number] } | null
-    goal: { name: string; type: string } | null
+    target: { type: string; predicate: string | null } | null
     locals: InfoEntry[]
     globals: InfoEntry[]
 }
@@ -127,24 +130,14 @@ export class InfoViewProvider implements vscode.Disposable {
 	    `<div class="location">${esc(fileName)}:${position.line + 1}:${position.character + 1}</div>`,
 	)
 
-	if (info?.goal) {
-	    parts.push(section('Goal', goalHtml(info.goal)))
-	}
-
-	if (info?.expression) {
-	    const [sl, sc, el, ec] = info.expression.range
-	    let exprText = ''
-	    try {
-		exprText = document.getText(new vscode.Range(sl, sc, el, ec)).trim()
-	    } catch {
-		// Stale range (document changed since last analysis); omit the text.
-	    }
-	    parts.push(section('Expression', bindingHtml(exprText, info.expression.type)))
-	}
-
+	// Lean-style order: the local context first, then the goal turnstile.
 	const locals = info?.locals ?? []
 	if (locals.length > 0) {
-	    parts.push(section('Context', locals.map(e => bindingHtml(e.name, e.type)).join('')))
+	    parts.push(section('Context', bindingTable(locals)))
+	}
+
+	if (info?.target) {
+	    parts.push(section('Goal', turnstileHtml(info.target)))
 	}
 
 	const messages = diagnosticsAt(document, position)
@@ -156,12 +149,12 @@ export class InfoViewProvider implements vscode.Disposable {
 	if (globals.length > 0) {
 	    parts.push(
 		`<details class="globals"><summary>Globals (${globals.length})</summary>` +
-		    globals.map(e => bindingHtml(e.name, e.type)).join('') +
+		    bindingTable(globals) +
 		    '</details>',
 	    )
 	}
 
-	if (!info || (!info.goal && !info.expression && locals.length === 0 && messages.length === 0)) {
+	if (!info || (!info.target && locals.length === 0 && messages.length === 0)) {
 	    parts.push('<div class="empty">No information available at the cursor.</div>')
 	}
 	return parts.join('\n')
@@ -197,11 +190,25 @@ export class InfoViewProvider implements vscode.Disposable {
 	border-bottom: 1px solid var(--vscode-panel-border, rgba(128,128,128,0.35));
 	padding-bottom: 0.2em;
     }
-    .binding { margin: 0.15em 0; white-space: pre-wrap; word-break: break-word; }
-    .binding .name { color: var(--vscode-symbolIcon-variableForeground, var(--vscode-editor-foreground)); }
-    .binding .colon { color: var(--vscode-descriptionForeground); padding: 0 0.3em; }
-    .binding .type { color: var(--vscode-symbolIcon-typeParameterForeground, var(--vscode-textLink-foreground)); }
-    .goal .name { color: var(--vscode-symbolIcon-functionForeground, var(--vscode-textLink-activeForeground)); font-weight: 600; }
+    /* Context entries laid out as a grid so the bar separators line up; the
+       part before the bar is right-aligned, the predicate after it likewise. */
+    .bindings {
+	display: grid;
+	grid-template-columns: max-content max-content minmax(0, max-content);
+	row-gap: 0.15em;
+	align-items: baseline;
+    }
+    .b-lhs { text-align: right; white-space: pre; }
+    .b-bar { color: var(--vscode-descriptionForeground); padding: 0 0.5em; }
+    .b-pred { text-align: right; overflow-wrap: anywhere; }
+    .name { color: var(--vscode-symbolIcon-variableForeground, var(--vscode-editor-foreground)); }
+    .colon { color: var(--vscode-descriptionForeground); }
+    .type { color: var(--vscode-symbolIcon-typeParameterForeground, var(--vscode-textLink-foreground)); }
+    .pred { color: var(--vscode-editor-foreground); }
+    .turnstile { margin: 0.15em 0; white-space: pre-wrap; word-break: break-word; font-weight: 600; }
+    .turnstile .turn { color: var(--vscode-symbolIcon-functionForeground, var(--vscode-textLink-activeForeground)); padding-right: 0.3em; }
+    .turnstile .bar { color: var(--vscode-descriptionForeground); padding: 0 0.3em; font-weight: normal; }
+    .turnstile .pred { font-weight: normal; }
     .diagnostic { margin: 0.15em 0; white-space: pre-wrap; }
     .diagnostic.error { color: var(--vscode-errorForeground, #f48771); }
     .diagnostic.warning { color: var(--vscode-editorWarning-foreground, #cca700); }
@@ -248,16 +255,29 @@ function section(title: string, body: string): string {
     return `<div class="section"><div class="section-title">${esc(title)}</div>${body}</div>`
 }
 
-function bindingHtml(name: string, type: string): string {
-    const lhs = name ? `<span class="name">${esc(name)}</span><span class="colon">:</span>` : ''
-    return `<div class="binding">${lhs}<span class="type">${esc(type)}</span></div>`
+/** A grid of `name : type | predicate` rows. The grid columns make every `|`
+ * line up; entries without a refinement leave the bar/predicate cells empty. */
+function bindingTable(entries: InfoEntry[]): string {
+    const rows = entries
+	.map(e => {
+	    const lhs =
+		`<div class="b-lhs"><span class="name">${esc(e.name)}</span>` +
+		`<span class="colon"> : </span><span class="type">${esc(e.type)}</span></div>`
+	    if (e.predicate) {
+		return lhs + `<div class="b-bar">|</div><div class="b-pred">${esc(e.predicate)}</div>`
+	    }
+	    return lhs + `<div class="b-bar"></div><div class="b-pred"></div>`
+	})
+	.join('')
+    return `<div class="bindings">${rows}</div>`
 }
 
-function goalHtml(goal: { name: string; type: string }): string {
-    return (
-	`<div class="binding goal"><span class="name">?${esc(goal.name)}</span>` +
-	`<span class="colon">:</span><span class="type">${esc(goal.type)}</span></div>`
-    )
+/** The goal shown Lean-style: `⊢ Type` (with ` | predicate` when refined). */
+function turnstileHtml(target: { type: string; predicate: string | null }): string {
+    const pred = target.predicate
+	? ` <span class="bar">|</span> <span class="pred">${esc(target.predicate)}</span>`
+	: ''
+    return `<div class="turnstile"><span class="turn">⊢</span><span class="type">${esc(target.type)}</span>${pred}</div>`
 }
 
 function diagnosticsAt(document: vscode.TextDocument, position: vscode.Position): vscode.Diagnostic[] {
