@@ -200,15 +200,20 @@ export class InfoViewProvider implements vscode.Disposable {
     }
     .b-lhs { text-align: right; white-space: pre; }
     .b-bar { color: var(--vscode-descriptionForeground); padding: 0 0.5em; }
-    .b-pred { text-align: right; overflow-wrap: anywhere; }
+    .b-pred { overflow-wrap: anywhere; }
     .name { color: var(--vscode-symbolIcon-variableForeground, var(--vscode-editor-foreground)); }
     .colon { color: var(--vscode-descriptionForeground); }
     .type { color: var(--vscode-symbolIcon-typeParameterForeground, var(--vscode-textLink-foreground)); }
     .pred { color: var(--vscode-editor-foreground); }
-    .turnstile { margin: 0.15em 0; white-space: pre-wrap; word-break: break-word; font-weight: 600; }
+    /* One conjunct per line (with a trailing && on all but the last); each
+       line takes a subtle, theme-aware highlight on hover. */
+    .conj { text-align: right; border-radius: 3px; padding: 0 0.3em; }
+    .conj:hover { background: var(--vscode-list-hoverBackground, rgba(128,128,128,0.18)); }
+    .conj .op { color: var(--vscode-descriptionForeground); }
+    .turnstile { margin: 0.15em 0; word-break: break-word; font-weight: 600; }
     .turnstile .turn { color: var(--vscode-symbolIcon-functionForeground, var(--vscode-textLink-activeForeground)); padding-right: 0.3em; }
     .turnstile .bar { color: var(--vscode-descriptionForeground); padding: 0 0.3em; font-weight: normal; }
-    .turnstile .pred { font-weight: normal; }
+    .turnstile .pred { font-weight: normal; display: inline-block; vertical-align: top; }
     .diagnostic { margin: 0.15em 0; white-space: pre-wrap; }
     .diagnostic.error { color: var(--vscode-errorForeground, #f48771); }
     .diagnostic.warning { color: var(--vscode-editorWarning-foreground, #cca700); }
@@ -255,6 +260,52 @@ function section(title: string, body: string): string {
     return `<div class="section"><div class="section-title">${esc(title)}</div>${body}</div>`
 }
 
+/** Split a pretty-printed predicate into its top-level `&&` conjuncts. The
+ * server's printer parenthesises lower-precedence sub-terms and wraps call
+ * arguments, so a ` && ` at bracket/quote depth 0 is always a real top-level
+ * conjunct — anything nested stays inside its brackets. */
+function splitConjuncts(predicate: string): string[] {
+    const parts: string[] = []
+    let buf = ''
+    let depth = 0
+    let inStr = false
+    for (let i = 0; i < predicate.length; i++) {
+        const ch = predicate[i]
+        if (ch === '"') inStr = !inStr
+        if (!inStr) {
+            if (ch === '(' || ch === '[' || ch === '{') depth++
+            else if (ch === ')' || ch === ']' || ch === '}') depth--
+            else if (
+                depth === 0 &&
+                ch === '&' &&
+                predicate[i + 1] === '&' &&
+                predicate[i - 1] === ' ' &&
+                predicate[i + 2] === ' '
+            ) {
+                parts.push(buf.trim())
+                buf = ''
+                i += 2
+                continue
+            }
+        }
+        buf += ch
+    }
+    if (buf.trim()) parts.push(buf.trim())
+    return parts.length > 0 ? parts : [predicate]
+}
+
+/** Render a predicate as one conjunct per line, each but the last ending in
+ * `&&`. Each line is hover-highlightable (see the `.conj` CSS). */
+function predicateHtml(predicate: string): string {
+    const conjuncts = splitConjuncts(predicate)
+    return conjuncts
+	.map((c, i) => {
+	    const amp = i < conjuncts.length - 1 ? ' <span class="op">&amp;&amp;</span>' : ''
+	    return `<div class="conj">${esc(c)}${amp}</div>`
+	})
+	.join('')
+}
+
 /** A grid of `name : type | predicate` rows. The grid columns make every `|`
  * line up; entries without a refinement leave the bar/predicate cells empty. */
 function bindingTable(entries: InfoEntry[]): string {
@@ -264,7 +315,7 @@ function bindingTable(entries: InfoEntry[]): string {
 		`<div class="b-lhs"><span class="name">${esc(e.name)}</span>` +
 		`<span class="colon"> : </span><span class="type">${esc(e.type)}</span></div>`
 	    if (e.predicate) {
-		return lhs + `<div class="b-bar">|</div><div class="b-pred">${esc(e.predicate)}</div>`
+		return lhs + `<div class="b-bar">|</div><div class="b-pred">${predicateHtml(e.predicate)}</div>`
 	    }
 	    return lhs + `<div class="b-bar"></div><div class="b-pred"></div>`
 	})
@@ -275,7 +326,7 @@ function bindingTable(entries: InfoEntry[]): string {
 /** The goal shown Lean-style: `⊢ Type` (with ` | predicate` when refined). */
 function turnstileHtml(target: { type: string; predicate: string | null }): string {
     const pred = target.predicate
-	? ` <span class="bar">|</span> <span class="pred">${esc(target.predicate)}</span>`
+	? ` <span class="bar">|</span> <span class="pred">${predicateHtml(target.predicate)}</span>`
 	: ''
     return `<div class="turnstile"><span class="turn">⊢</span><span class="type">${esc(target.type)}</span>${pred}</div>`
 }
