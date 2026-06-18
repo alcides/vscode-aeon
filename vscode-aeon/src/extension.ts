@@ -40,6 +40,16 @@ export async function activate(context: vscode.ExtensionContext) {
     if (autoOpen() && vscode.window.activeTextEditor?.document.languageId === 'aeon') {
 	infoViewProvider.open()
     }
+
+    // Live program-synthesis progress streamed by the server while a hole is
+    // being synthesized (see `aeon/lsp/synthesis_ui.py`). Forward each update to
+    // the info view, which shows the algorithm, candidate counts, best candidate
+    // so far, and a time progress bar.
+    context.subscriptions.push(
+	aeonServices.aeonClient.onNotification('aeon/synthesisProgress', params =>
+	    infoViewProvider.showSynthesisProgress(params),
+	),
+    )
 }
 
 export function deactivate() {
