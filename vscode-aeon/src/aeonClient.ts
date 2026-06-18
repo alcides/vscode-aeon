@@ -77,6 +77,11 @@ export class AeonClient implements Disposable {
 	return await this.client.sendRequest<R>(method, params)
     }
 
+    /** Subscribe to a server-pushed notification (e.g. `aeon/synthesisProgress`). */
+    onNotification(method: string, handler: (params: unknown) => void): Disposable {
+	return this.client.onNotification(method, handler)
+    }
+
     async restart(): Promise<void> {
         if (this.running) {
             this.outputChannel.appendLine('Stopping Aeon language server...')

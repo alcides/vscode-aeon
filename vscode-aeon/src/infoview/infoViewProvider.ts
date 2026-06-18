@@ -19,8 +19,24 @@ interface InfoViewResponse {
     globals: InfoEntry[]
 }
 
+/** Wire format of the `aeon/synthesisProgress` notification the server streams
+ * while a hole is being synthesized (see `aeon/lsp/synthesis_ui.py`). */
+interface SynthesisProgress {
+    hole: string
+    algorithm: string
+    created: number
+    assessed: number
+    best: string | null
+    bestQuality: string | null
+    elapsed: number
+    budget: number
+    done: boolean
+}
+
 const INFOVIEW_REQUEST = 'aeon/infoView'
 const DEBOUNCE_MS = 150
+/** Keep a finished synthesis result visible this long before clearing it. */
+const SYNTHESIS_CLEAR_MS = 12000
 
 /**
  * A Lean-style info view: a webview panel beside the editor showing, for the
@@ -33,6 +49,8 @@ export class InfoViewProvider implements vscode.Disposable {
     private readonly disposables: vscode.Disposable[] = []
     private updateTimer: ReturnType<typeof setTimeout> | undefined
     private requestSeq = 0
+    private synthesis: SynthesisProgress | undefined
+    private synthesisClearTimer: ReturnType<typeof setTimeout> | undefined
 
     constructor(private readonly aeonClient: AeonClient) {
 	vscode.window.onDidChangeTextEditorSelection(
@@ -115,6 +133,49 @@ export class InfoViewProvider implements vscode.Disposable {
 
 	const html = this.render(document, position, info)
 	void this.panel.webview.postMessage({ kind: 'update', html })
+    }
+
+    /** Handle an `aeon/synthesisProgress` notification: update the dedicated
+     * synthesis region of the info view (independent of the cursor-driven
+     * content), opening the panel if needed so progress is visible. */
+    showSynthesisProgress(params: unknown): void {
+	const p = params as Partial<SynthesisProgress> | null
+	if (!p || typeof p.algorithm !== 'string') return
+	this.synthesis = {
+	    hole: typeof p.hole === 'string' ? p.hole : '',
+	    algorithm: p.algorithm,
+	    created: typeof p.created === 'number' ? p.created : 0,
+	    assessed: typeof p.assessed === 'number' ? p.assessed : 0,
+	    best: typeof p.best === 'string' ? p.best : null,
+	    bestQuality: typeof p.bestQuality === 'string' ? p.bestQuality : null,
+	    elapsed: typeof p.elapsed === 'number' ? p.elapsed : 0,
+	    budget: typeof p.budget === 'number' ? p.budget : 0,
+	    done: p.done === true,
+	}
+	if (!this.panel) {
+	    // The webview script may not be ready to receive a message the very
+	    // instant the panel is created; give it a beat before the first push.
+	    this.open()
+	    setTimeout(() => this.pushSynthesis(), DEBOUNCE_MS)
+	    return
+	}
+	this.pushSynthesis()
+    }
+
+    private pushSynthesis(): void {
+	if (this.synthesisClearTimer) {
+	    clearTimeout(this.synthesisClearTimer)
+	    this.synthesisClearTimer = undefined
+	}
+	const html = this.synthesis ? synthesisHtml(this.synthesis) : ''
+	void this.panel?.webview.postMessage({ kind: 'synthesis', html })
+	// Once finished, keep the result up briefly, then clear it.
+	if (this.synthesis?.done) {
+	    this.synthesisClearTimer = setTimeout(() => {
+		this.synthesis = undefined
+		void this.panel?.webview.postMessage({ kind: 'synthesis', html: '' })
+	    }, SYNTHESIS_CLEAR_MS)
+	}
     }
 
     // ----------------------------------------------------------------- HTML
@@ -224,14 +285,66 @@ export class InfoViewProvider implements vscode.Disposable {
 	margin-bottom: 0.3em;
     }
     .empty { color: var(--vscode-descriptionForeground); font-style: italic; }
+    /* Live synthesis progress (separate, server-pushed region). */
+    .synthesis { margin-bottom: 1em; }
+    .syn-algo {
+	font-family: var(--vscode-font-family, sans-serif);
+	color: var(--vscode-editor-foreground);
+	margin-bottom: 0.25em;
+    }
+    .syn-algo .done { color: var(--vscode-testing-iconPassed, #4caf50); }
+    .syn-algo .spin { color: var(--vscode-descriptionForeground); }
+    .syn-stats {
+	font-family: var(--vscode-font-family, sans-serif);
+	font-size: 0.9em;
+	color: var(--vscode-descriptionForeground);
+	margin-bottom: 0.35em;
+    }
+    .syn-stats .num { color: var(--vscode-editor-foreground); font-weight: 600; }
+    .syn-best {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	background: var(--vscode-textCodeBlock-background, rgba(128,128,128,0.12));
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	margin-bottom: 0.4em;
+    }
+    .syn-best .label {
+	font-family: var(--vscode-font-family, sans-serif);
+	font-size: 0.8em;
+	color: var(--vscode-descriptionForeground);
+	display: block;
+    }
+    .syn-bar {
+	height: 6px;
+	border-radius: 3px;
+	background: rgba(128,128,128,0.25);
+	overflow: hidden;
+    }
+    .syn-bar-fill {
+	height: 100%;
+	background: var(--vscode-progressBar-background, var(--vscode-textLink-foreground));
+	transition: width 0.2s ease;
+    }
+    .syn-time {
+	font-size: 0.8em;
+	color: var(--vscode-descriptionForeground);
+	text-align: right;
+	margin-top: 0.15em;
+    }
 </style>
 </head>
 <body>
+<div id="synthesis"></div>
 <div id="content"><div class="empty">Place the cursor in an Aeon file.</div></div>
 <script>
     window.addEventListener('message', event => {
-	if (event.data && event.data.kind === 'update') {
-	    document.getElementById('content').innerHTML = event.data.html;
+	const data = event.data;
+	if (!data) return;
+	if (data.kind === 'update') {
+	    document.getElementById('content').innerHTML = data.html;
+	} else if (data.kind === 'synthesis') {
+	    document.getElementById('synthesis').innerHTML = data.html;
 	}
     });
 </script>
@@ -241,6 +354,7 @@ export class InfoViewProvider implements vscode.Disposable {
 
     dispose(): void {
 	if (this.updateTimer) clearTimeout(this.updateTimer)
+	if (this.synthesisClearTimer) clearTimeout(this.synthesisClearTimer)
 	this.panel?.dispose()
 	for (const d of this.disposables) d.dispose()
     }
@@ -329,6 +443,40 @@ function turnstileHtml(target: { type: string; predicate: string | null }): stri
 	? ` <span class="bar">|</span> <span class="pred">${predicateHtml(target.predicate)}</span>`
 	: ''
     return `<div class="turnstile"><span class="turn">⊢</span><span class="type">${esc(target.type)}</span>${pred}</div>`
+}
+
+/** Render the live synthesis progress region: algorithm, candidate counts,
+ * best candidate so far, and a time progress bar (full on completion). */
+function synthesisHtml(s: SynthesisProgress): string {
+    const holeLabel = s.hole ? ` <span class="b-bar">·</span> ${esc(s.hole)}` : ''
+    const status = s.done
+	? '<span class="done">✓</span>'
+	: '<span class="spin">⟳</span>'
+    const algo = `<div class="syn-algo">${status} ${esc(s.algorithm)}${holeLabel}</div>`
+
+    const stats =
+	`<div class="syn-stats">` +
+	`<span class="num">${s.created}</span> created` +
+	` <span class="b-bar">·</span> ` +
+	`<span class="num">${s.assessed}</span> assessed</div>`
+
+    let best = ''
+    if (s.best) {
+	const q = s.bestQuality ? ` <span class="label">quality ${esc(s.bestQuality)}</span>` : ''
+	best =
+	    `<div class="syn-best"><span class="label">best${s.done ? '' : ' so far'}</span>` +
+	    `${esc(s.best)}${q}</div>`
+    }
+
+    const pct =
+	s.budget > 0 ? Math.min(100, Math.round((100 * s.elapsed) / s.budget)) : s.done ? 100 : 0
+    const bar = `<div class="syn-bar"><div class="syn-bar-fill" style="width:${pct}%"></div></div>`
+    const time =
+	s.budget > 0
+	    ? `<div class="syn-time">${s.elapsed.toFixed(1)}s / ${s.budget.toFixed(0)}s</div>`
+	    : ''
+
+    return section('Synthesis', `<div class="synthesis">${algo}${stats}${best}${bar}${time}</div>`)
 }
 
 function diagnosticsAt(document: vscode.TextDocument, position: vscode.Position): vscode.Diagnostic[] {
