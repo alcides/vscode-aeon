@@ -191,7 +191,7 @@ export class InfoViewProvider implements vscode.Disposable {
 	padding-bottom: 0.2em;
     }
     /* Context entries laid out as a grid so the bar separators line up; the
-       part before the bar is right-aligned, the predicate after it likewise. */
+       part before the bar is right-aligned, the refinement after it left-aligned. */
     .bindings {
 	display: grid;
 	grid-template-columns: max-content max-content minmax(0, max-content);
@@ -207,7 +207,7 @@ export class InfoViewProvider implements vscode.Disposable {
     .pred { color: var(--vscode-editor-foreground); }
     /* One conjunct per line (with a trailing && on all but the last); each
        line takes a subtle, theme-aware highlight on hover. */
-    .conj { text-align: right; border-radius: 3px; padding: 0 0.3em; }
+    .conj { text-align: left; border-radius: 3px; padding: 0 0.3em; }
     .conj:hover { background: var(--vscode-list-hoverBackground, rgba(128,128,128,0.18)); }
     .conj .op { color: var(--vscode-descriptionForeground); }
     .turnstile { margin: 0.15em 0; word-break: break-word; font-weight: 600; }
