@@ -293,12 +293,12 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "^24",
     "@types/vscode": "^1.116.0",
-    "@vscode/vsce": "^3.6.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.25.5",
-    "eslint": "^9.13.0",
+    "eslint": "^10.5.0",
     "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.16.0"
+    "typescript-eslint": "^8.61.1"
   },
   "icon": "images/aeon_logo.png",
   "dependencies": {
@@ -306,7 +306,7 @@
     "@vscode/codicons": "^0.0.41",
     "dotenv": "^17.0.1",
     "semver": "^7.6.0",
-    "vscode-languageclient": "^9.0.1",
+    "vscode-languageclient": "^10.0.0",
     "yarn": "^1.22.22"
   },
   "__metadata": {
