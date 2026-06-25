@@ -1,318 +1,331 @@
 {
-  "name": "aeon-lang",
-  "displayName": "Æon Language",
-  "description": "Aeon language support for VS Code",
-  "version": "0.0.22",
-  "publisher": "AlcidesFonseca",
-  "engines": {
-    "vscode": "^1.116.0"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "keywords": [
-    "Aeon"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/alcides/vscode-aeon.git"
-  },
-  "homepage": "https://github.com/alcides/aeon",
-  "main": "./out/extension.js",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "Aeon",
-      "properties": {
-        "aeon.environmentPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the environment which aeon will be installed on."
-        },
-        "aeon.useSystemInterpreter": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
-        },
-        "aeon.localPackagePath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to a local aeon Python package folder to use instead of the published PyPI package. When set, the language server is launched with 'uvx --from <path>' instead of 'uvx --from aeonlang'."
-        },
-        "aeon.input.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable the Lean-style Unicode input method. Type the leader followed by an abbreviation (e.g. \\to) to insert a Unicode symbol (→)."
-        },
-        "aeon.input.leader": {
-          "type": "string",
-          "default": "\\",
-          "maxLength": 1,
-          "minLength": 1,
-          "description": "The character that starts a Unicode abbreviation. Defaults to the backslash."
-        },
-        "aeon.input.eagerReplacement": {
-          "type": "boolean",
-          "default": true,
-          "description": "Replace an abbreviation as soon as it is unambiguous, without waiting for a terminating character."
-        },
-        "aeon.defaultSynthesizer": {
-          "type": "string",
-          "default": "gp",
-          "enum": ["tdsyn_enumerative", "tdsyn", "tactics", "gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
-          "enumDescriptions": [
-            "Type-directed synthesis (breadth-first search with SMT-solved leaves)",
-            "Type-directed synthesis (alias for tdsyn_enumerative)",
-            "Random tactic search (Lean-style)",
-            "Genetic programming (default)",
-            "Enumerative search",
-            "Random search",
-            "Synquid-style type-directed enumerative synthesis",
-            "Hill climbing",
-            "One-plus-one evolutionary strategy",
-            "SMT-guided synthesis via z3 (best for arithmetic/boolean constraints)",
-            "Decision tree regressor fitted from @csv_data examples",
-            "LLM-based synthesis (requires Ollama)"
-          ],
-          "description": "Preferred synthesizer shown first in the Synthesize code-action menu when a hole is selected."
-        },
-        "aeon.infoView.autoOpen": {
-          "type": "boolean",
-          "default": true,
-          "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
-        }
-      }
-    },
-    "commands": [
-      {
-        "command": "aeon.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "aeon.showSetupGuide",
-        "title": "Docs : Show Setup Guide",
-        "description": "Show Aeon setup guide",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.showDocResources",
-        "title": "Docs : Open Aeon Documentation",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.setup.installUv",
-        "title": "Setup : Install Uv",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.setup.updateUv",
-        "title": "Setup : Update Uv",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.setup.uninstallUv",
-        "title": "Setup : Uninstall Uv",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.troubleshooting.showOutput",
-        "title": "Troubleshooting : Show Output",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.restartServer",
-        "title": "Restart Server",
-        "category": "Aeon"
-      },
-      {
-        "command": "aeon.input.convert",
-        "title": "Input : Convert Current Abbreviation",
-        "category": "Aeon"
-      },
-      {
-	"command": "aeon.infoView.toggle",
-	"title": "Info View : Toggle",
-	"category": "Aeon"
-      },
-      {
-	"command": "aeon.infoView.open",
-	"title": "Info View : Open",
-	"category": "Aeon"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "aeon",
-        "scopeName": "source.aeon",
-        "path": "./syntaxes/aeon.json",
-        "embeddedLanguages": {
-          "source.python": "python"
-        }
-      }
-    ],
-    "languages": [
-      {
-        "id": "aeon",
-        "configuration": "./language-configuration.json",
-        "extensions": [
-          ".ae"
-        ]
-      }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "aeon.showSetupGuide"
-        },
-        {
-          "command": "aeon.showDocResources"
-        },
-        {
-          "command": "aeon.setup.installUv"
-        },
-        {
-          "command": "aeon.setup.updateUv"
-        },
-        {
-          "command": "aeon.setup.uninstallUv"
-        },
-        {
-          "command": "aeon.troubleshooting.showOutput"
-        },
-        {
-          "command": "aeon.restartServer"
-        },
-        {
-          "command": "aeon.input.convert",
-          "when": "editorLangId == aeon"
+	"name": "aeon-lang",
+	"displayName": "Æon Language",
+	"description": "Aeon language support for VS Code",
+	"version": "0.0.22",
+	"publisher": "AlcidesFonseca",
+	"engines": {
+		"vscode": "^1.116.0"
 	},
-	{
-	  "command": "aeon.infoView.toggle"
+	"categories": [
+		"Programming Languages"
+	],
+	"keywords": [
+		"Aeon"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/alcides/vscode-aeon.git"
 	},
-	{
-	  "command": "aeon.infoView.open"
-        }
-      ]
-    },
-    "semanticTokenScopes": [
-      {
-        "scopes": {
-          "keyword": [
-            "keyword.other"
-          ]
-        }
-      }
-    ],
-    "walkthroughs": [
-      {
-        "id": "aeon.welcome",
-        "title": "Aeon Setup",
-        "description": "Getting started with Aeon\n",
-        "steps": [
-          {
-            "id": "aeon.welcome.openSetupGuide",
-            "title": "Re-Open Setup Guide",
-            "description": "This guide can always be re-opened by running the command 'Aeon : Docs : Show Setup Guide'.",
-            "media": {
-              "image": "media/openguide.png",
-              "altText": "Click on the Top menu bar, select 'Show and Run Commands >', then 'Aeon : Docs : Show Setup Guide'"
-            }
-          },
-          {
-            "id": "aeon.welcome.documentation",
-            "title": "Documentation",
-            "description": "Learn using Aeon with the resources on the right.",
-            "media": {
-              "markdown": "./media/guide-documentation.md"
-            }
-          },
-          {
-            "id": "aeon.welcome.installDeps.linux",
-            "title": "Install Required Dependencies",
-            "description": "Install Git and curl using your package manager.",
-            "media": {
-              "markdown": "./media/guide-installDeps-linux.md"
-            },
-            "when": "isLinux"
-          },
-          {
-            "id": "aeon.welcome.installDeps.mac",
-            "title": "Install Required Dependencies",
-            "description": "Install Homebrew, Git and curl.",
-            "media": {
-              "markdown": "./media/guide-installDeps-mac.md"
-            },
-            "when": "isMac"
-          },
-          {
-            "id": "aeon.welcome.installDeps.windows",
-            "title": "Install Required Dependencies",
-            "description": "Install Git.",
-            "media": {
-              "markdown": "./media/guide-installDeps-windows.md"
-            },
-            "when": "isWindows"
-          },
-          {
-            "id": "aeon.welcome.installUv.unix",
-            "title": "Install uv Python Environment Manager",
-            "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
-            "media": {
-              "markdown": "./media/guide-installUv-unix.md"
-            },
-            "when": "isLinux || isMac"
-          },
-          {
-            "id": "aeon.welcome.installUv.windows",
-            "title": "Install uv Python Environment Manager",
-            "description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
-            "media": {
-              "markdown": "./media/guide-installUv-windows.md"
-            },
-            "when": "isWindows"
-          }
-        ]
-      }
-    ]
-  },
-  "activationEvents": [
-    "onViewWelcome:aeon.welcome",
-    "onLanguage:aeon"
-  ],
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "build": "npm run compile",
-    "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
-    "lint": "eslint",
-    "watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
-    "package": "vsce package",
-    "packagePreRelease": "vsce package --pre-release"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.13.0",
-    "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "^24",
-    "@types/vscode": "^1.116.0",
-    "@vscode/vsce": "^3.6.0",
-    "esbuild": "^0.25.5",
-    "eslint": "^9.13.0",
-    "ovsx": "^0.10.5",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.16.0"
-  },
-  "icon": "images/aeon_logo.png",
-  "dependencies": {
-    "@vscode-elements/elements": "^2.0.0",
-    "@vscode/codicons": "^0.0.41",
-    "dotenv": "^17.0.1",
-    "semver": "^7.6.0",
-    "vscode-languageclient": "^9.0.1",
-    "yarn": "^1.22.22"
-  },
-  "__metadata": {
-    "id": "aeon-lang",
-    "publisherDisplayName": "AlcidesFonseca",
-    "publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
-    "isPreReleaseVersion": false
-  }
+	"homepage": "https://github.com/alcides/aeon",
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Aeon",
+			"properties": {
+				"aeon.environmentPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to the environment which aeon will be installed on."
+				},
+				"aeon.useSystemInterpreter": {
+					"type": "boolean",
+					"default": false,
+					"description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
+				},
+				"aeon.localPackagePath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to a local aeon Python package folder to use instead of the published PyPI package. When set, the language server is launched with 'uvx --from <path>' instead of 'uvx --from aeonlang'."
+				},
+				"aeon.input.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable the Lean-style Unicode input method. Type the leader followed by an abbreviation (e.g. \\to) to insert a Unicode symbol (→)."
+				},
+				"aeon.input.leader": {
+					"type": "string",
+					"default": "\\",
+					"maxLength": 1,
+					"minLength": 1,
+					"description": "The character that starts a Unicode abbreviation. Defaults to the backslash."
+				},
+				"aeon.input.eagerReplacement": {
+					"type": "boolean",
+					"default": true,
+					"description": "Replace an abbreviation as soon as it is unambiguous, without waiting for a terminating character."
+				},
+				"aeon.defaultSynthesizer": {
+					"type": "string",
+					"default": "gp",
+					"enum": [
+						"tdsyn_enumerative",
+						"tdsyn",
+						"tactics",
+						"gp",
+						"enumerative",
+						"random_search",
+						"synquid",
+						"hc",
+						"1p1",
+						"smt",
+						"decision_tree",
+						"llm"
+					],
+					"enumDescriptions": [
+						"Type-directed synthesis (breadth-first search with SMT-solved leaves)",
+						"Type-directed synthesis (alias for tdsyn_enumerative)",
+						"Random tactic search (Lean-style)",
+						"Genetic programming (default)",
+						"Enumerative search",
+						"Random search",
+						"Synquid-style type-directed enumerative synthesis",
+						"Hill climbing",
+						"One-plus-one evolutionary strategy",
+						"SMT-guided synthesis via z3 (best for arithmetic/boolean constraints)",
+						"Decision tree regressor fitted from @csv_data examples",
+						"LLM-based synthesis (requires Ollama)"
+					],
+					"description": "Preferred synthesizer shown first in the Synthesize code-action menu when a hole is selected."
+				},
+				"aeon.infoView.autoOpen": {
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "aeon.helloWorld",
+				"title": "Hello World"
+			},
+			{
+				"command": "aeon.showSetupGuide",
+				"title": "Docs : Show Setup Guide",
+				"description": "Show Aeon setup guide",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.showDocResources",
+				"title": "Docs : Open Aeon Documentation",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.setup.installUv",
+				"title": "Setup : Install Uv",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.setup.updateUv",
+				"title": "Setup : Update Uv",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.setup.uninstallUv",
+				"title": "Setup : Uninstall Uv",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.troubleshooting.showOutput",
+				"title": "Troubleshooting : Show Output",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.restartServer",
+				"title": "Restart Server",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.input.convert",
+				"title": "Input : Convert Current Abbreviation",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.infoView.toggle",
+				"title": "Info View : Toggle",
+				"category": "Aeon"
+			},
+			{
+				"command": "aeon.infoView.open",
+				"title": "Info View : Open",
+				"category": "Aeon"
+			}
+		],
+		"grammars": [
+			{
+				"language": "aeon",
+				"scopeName": "source.aeon",
+				"path": "./syntaxes/aeon.json",
+				"embeddedLanguages": {
+					"source.python": "python"
+				}
+			}
+		],
+		"languages": [
+			{
+				"id": "aeon",
+				"configuration": "./language-configuration.json",
+				"extensions": [
+					".ae"
+				]
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "aeon.showSetupGuide"
+				},
+				{
+					"command": "aeon.showDocResources"
+				},
+				{
+					"command": "aeon.setup.installUv"
+				},
+				{
+					"command": "aeon.setup.updateUv"
+				},
+				{
+					"command": "aeon.setup.uninstallUv"
+				},
+				{
+					"command": "aeon.troubleshooting.showOutput"
+				},
+				{
+					"command": "aeon.restartServer"
+				},
+				{
+					"command": "aeon.input.convert",
+					"when": "editorLangId == aeon"
+				},
+				{
+					"command": "aeon.infoView.toggle"
+				},
+				{
+					"command": "aeon.infoView.open"
+				}
+			]
+		},
+		"semanticTokenScopes": [
+			{
+				"scopes": {
+					"keyword": [
+						"keyword.other"
+					]
+				}
+			}
+		],
+		"walkthroughs": [
+			{
+				"id": "aeon.welcome",
+				"title": "Aeon Setup",
+				"description": "Getting started with Aeon\n",
+				"steps": [
+					{
+						"id": "aeon.welcome.openSetupGuide",
+						"title": "Re-Open Setup Guide",
+						"description": "This guide can always be re-opened by running the command 'Aeon : Docs : Show Setup Guide'.",
+						"media": {
+							"image": "media/openguide.png",
+							"altText": "Click on the Top menu bar, select 'Show and Run Commands >', then 'Aeon : Docs : Show Setup Guide'"
+						}
+					},
+					{
+						"id": "aeon.welcome.documentation",
+						"title": "Documentation",
+						"description": "Learn using Aeon with the resources on the right.",
+						"media": {
+							"markdown": "./media/guide-documentation.md"
+						}
+					},
+					{
+						"id": "aeon.welcome.installDeps.linux",
+						"title": "Install Required Dependencies",
+						"description": "Install Git and curl using your package manager.",
+						"media": {
+							"markdown": "./media/guide-installDeps-linux.md"
+						},
+						"when": "isLinux"
+					},
+					{
+						"id": "aeon.welcome.installDeps.mac",
+						"title": "Install Required Dependencies",
+						"description": "Install Homebrew, Git and curl.",
+						"media": {
+							"markdown": "./media/guide-installDeps-mac.md"
+						},
+						"when": "isMac"
+					},
+					{
+						"id": "aeon.welcome.installDeps.windows",
+						"title": "Install Required Dependencies",
+						"description": "Install Git.",
+						"media": {
+							"markdown": "./media/guide-installDeps-windows.md"
+						},
+						"when": "isWindows"
+					},
+					{
+						"id": "aeon.welcome.installUv.unix",
+						"title": "Install uv Python Environment Manager",
+						"description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
+						"media": {
+							"markdown": "./media/guide-installUv-unix.md"
+						},
+						"when": "isLinux || isMac"
+					},
+					{
+						"id": "aeon.welcome.installUv.windows",
+						"title": "Install uv Python Environment Manager",
+						"description": "Install uv, the fast Python package installer and resolver.\n[Click to install](command:aeon.setup.installUv)",
+						"media": {
+							"markdown": "./media/guide-installUv-windows.md"
+						},
+						"when": "isWindows"
+					}
+				]
+			}
+		]
+	},
+	"activationEvents": [
+		"onViewWelcome:aeon.welcome",
+		"onLanguage:aeon"
+	],
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"build": "npm run compile",
+		"compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
+		"lint": "eslint",
+		"watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
+		"package": "vsce package",
+		"packagePreRelease": "vsce package --pre-release"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@stylistic/eslint-plugin": "^5.10.0",
+		"@types/node": "^24",
+		"@types/vscode": "^1.125.0",
+		"@vscode/vsce": "^3.6.0",
+		"esbuild": "^0.25.5",
+		"eslint": "^9.13.0",
+		"ovsx": "^0.10.5",
+		"typescript": "^5.7.2",
+		"typescript-eslint": "^8.16.0"
+	},
+	"icon": "images/aeon_logo.png",
+	"dependencies": {
+		"@vscode-elements/elements": "^2.0.0",
+		"@vscode/codicons": "^0.0.41",
+		"dotenv": "^17.0.1",
+		"semver": "^7.6.0",
+		"vscode-languageclient": "^9.0.1",
+		"yarn": "^1.22.22"
+	},
+	"__metadata": {
+		"id": "aeon-lang",
+		"publisherDisplayName": "AlcidesFonseca",
+		"publisherId": "cad44106-bddd-6cd4-a711-3354f600f23c",
+		"isPreReleaseVersion": false
+	}
 }
