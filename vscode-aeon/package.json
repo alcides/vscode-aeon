@@ -298,7 +298,7 @@
     "eslint": "^9.13.0",
     "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.16.0"
+    "typescript-eslint": "^8.61.0"
   },
   "icon": "images/aeon_logo.png",
   "dependencies": {
