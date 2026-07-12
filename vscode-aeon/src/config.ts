@@ -27,3 +27,16 @@ export function defaultSynthesizer(): string {
     const s: string | undefined = vscode.workspace.getConfiguration('aeon').get('defaultSynthesizer')
     return s?.trim() || 'gp'
 }
+
+/**
+ * Build the command + args used to invoke the `aeon` program (via `uvx`),
+ * honouring the `aeon.localPackagePath` setting. `extraArgs` are appended after
+ * the `aeon` subcommand, e.g. `['--language-server-mode']` or `['--format', file]`.
+ */
+export function aeonExecutable(extraArgs: string[]): { command: string; args: string[] } {
+    const pkgPath = localPackagePath()
+    if (pkgPath) {
+        return { command: 'uvx', args: ['--from', pkgPath, 'aeon', ...extraArgs] }
+    }
+    return { command: 'uvx', args: ['--refresh', '--from', 'aeonlang', 'aeon', ...extraArgs] }
+}
