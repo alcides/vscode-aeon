@@ -74,7 +74,7 @@ const INFOVIEW_REQUEST = 'aeon/infoView'
 const SYNTHESIZE_COMMAND = 'aeon.synthesize'
 const DEBOUNCE_MS = 150
 /** Display order for synthesis families in the Synthesis tab. */
-const SYNTH_FAMILY_ORDER = ['Exhaustive', 'Random', 'Evolutionary', 'LLM'] as const
+const SYNTH_FAMILY_ORDER = ['Enumerative', 'Random', 'Evolutionary', 'LLM'] as const
 /** Keep a finished synthesis result visible this long before clearing it. */
 const SYNTHESIS_CLEAR_MS = 12000
 
