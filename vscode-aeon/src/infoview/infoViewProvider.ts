@@ -1,5 +1,12 @@
 import * as vscode from 'vscode'
 import { AeonClient } from '../aeonClient'
+import {
+    formatSynthesisBudget,
+    synthesisBudgetSeconds,
+    synthesisBudgetSlider,
+    SYNTHESIS_BUDGET_MAX_S,
+    SYNTHESIS_BUDGET_MIN_S,
+} from '../config'
 
 /** Wire format of the custom `aeon/infoView` LSP request (see
  * `aeon/lsp/infoview.py` in the compiler repository). Each context entry is a
@@ -37,6 +44,7 @@ interface ErrorInfo {
 interface SynthesizerInfo {
     id: string
     label: string
+    family: string
 }
 
 interface InfoViewResponse {
@@ -65,6 +73,8 @@ interface SynthesisProgress {
 const INFOVIEW_REQUEST = 'aeon/infoView'
 const SYNTHESIZE_COMMAND = 'aeon.synthesize'
 const DEBOUNCE_MS = 150
+/** Display order for synthesis families in the Synthesis tab. */
+const SYNTH_FAMILY_ORDER = ['Exhaustive', 'Random', 'Evolutionary', 'LLM'] as const
 /** Keep a finished synthesis result visible this long before clearing it. */
 const SYNTHESIS_CLEAR_MS = 12000
 
@@ -89,6 +99,7 @@ export class InfoViewProvider implements vscode.Disposable {
      * click from the webview can target the right file and hole. */
     private currentUri: string | undefined
     private currentHole: string | null = null
+    private currentSynthesizers: SynthesizerInfo[] = []
 
     constructor(private readonly aeonClient: AeonClient) {
 	vscode.window.onDidChangeTextEditorSelection(
@@ -149,17 +160,63 @@ export class InfoViewProvider implements vscode.Disposable {
 	if (editor) this.scheduleUpdate(editor)
     }
 
-    /** Messages posted by the webview script — currently the "run synthesis"
-     * buttons in the synthesis tab. */
+    /** Messages posted by the webview script — synthesis run buttons and the
+     * budget slider. */
     private onWebviewMessage(msg: unknown): void {
-	const m = msg as { type?: string; synthesizer?: string } | null
-	if (!m || m.type !== 'synthesize' || typeof m.synthesizer !== 'string') return
+	const m = msg as {
+	    type?: string
+	    synthesizer?: string
+	    budgetSeconds?: number
+	    position?: number
+	} | null
+	if (!m || typeof m.type !== 'string') return
+
+	if (m.type === 'setBudgetSlider' && typeof m.position === 'number') {
+	    const pos = Math.min(100, Math.max(0, Math.round(m.position)))
+	    void vscode.workspace
+		.getConfiguration('aeon')
+		.update('synthesis.budgetSlider', pos, vscode.ConfigurationTarget.Global)
+	    return
+	}
+
+	if (m.type !== 'synthesize' || typeof m.synthesizer !== 'string') return
 	if (!this.currentUri || !this.currentHole) return
+
+	const budget =
+	    typeof m.budgetSeconds === 'number' && m.budgetSeconds > 0
+		? m.budgetSeconds
+		: synthesisBudgetSeconds()
+	this.beginSynthesis(m.synthesizer, budget)
 	void this.aeonClient.executeCommand(SYNTHESIZE_COMMAND, [
 	    this.currentUri,
 	    this.currentHole,
 	    m.synthesizer,
+	    budget,
 	])
+    }
+
+    /** Optimistic progress shown the instant the user starts a synthesis run,
+     * before the server has parsed the file and begun the search. */
+    private beginSynthesis(synthesizerId: string, budgetSeconds: number): void {
+	const label =
+	    this.currentSynthesizers.find(s => s.id === synthesizerId)?.label ?? synthesizerId
+	if (this.synthesisClearTimer) {
+	    clearTimeout(this.synthesisClearTimer)
+	    this.synthesisClearTimer = undefined
+	}
+	this.synthesis = {
+	    hole: this.currentHole ?? '',
+	    algorithm: label,
+	    created: 0,
+	    assessed: 0,
+	    best: null,
+	    bestQuality: null,
+	    elapsed: 0,
+	    budget: budgetSeconds,
+	    done: false,
+	}
+	if (!this.panel) this.open()
+	this.pushSynthesis()
     }
 
     private scheduleUpdate(editor: vscode.TextEditor): void {
@@ -189,9 +246,11 @@ export class InfoViewProvider implements vscode.Disposable {
 
 	this.currentUri = document.uri.toString()
 	this.currentHole = info?.hole ?? null
+	this.currentSynthesizers = info?.synthesizers ?? []
 
 	const fileName = document.uri.path.split('/').pop() ?? document.uri.path
 	const location = `${esc(fileName)}:${position.line + 1}:${position.character + 1}`
+	const budgetSlider = synthesisBudgetSlider()
 
 	// Prefer the server's structured errors; fall back to the diagnostics
 	// VS Code already holds (e.g. syntax errors) for both content and badge.
@@ -205,6 +264,8 @@ export class InfoViewProvider implements vscode.Disposable {
 	    errorCount,
 	    context: this.renderContext(info),
 	    synthesis: this.renderSynthesis(info),
+	    budgetSlider,
+	    budgetLabel: formatSynthesisBudget(synthesisBudgetSeconds(budgetSlider)),
 	})
     }
 
@@ -307,18 +368,44 @@ export class InfoViewProvider implements vscode.Disposable {
     private renderSynthesis(info: InfoViewResponse | null): string {
 	const hole = info?.hole ?? null
 	const synthesizers = info?.synthesizers ?? []
+	const slider = synthesisBudgetSlider()
+	const budgetLabel = formatSynthesisBudget(synthesisBudgetSeconds(slider))
+	const sliderHtml =
+	    `<div class="syn-budget">` +
+	    `<label class="syn-budget-label">Time budget: <span id="budget-label">${esc(budgetLabel)}</span></label>` +
+	    `<input type="range" class="syn-budget-slider" id="budget-slider" min="0" max="100" step="1" value="${slider}">` +
+	    `<div class="syn-budget-hints"><span>${esc(formatSynthesisBudget(SYNTHESIS_BUDGET_MIN_S))}</span>` +
+	    `<span>${esc(formatSynthesisBudget(SYNTHESIS_BUDGET_MAX_S))}</span></div></div>`
+
 	if (!hole) {
-	    return '<div class="empty">Place the cursor on a <code>?hole</code> to synthesize it.</div>'
+	    return sliderHtml + '<div class="empty">Place the cursor on a <code>?hole</code> to synthesize it.</div>'
 	}
 	const header = `<div class="syn-header">Synthesize <span class="hole">?${esc(hole)}</span> with:</div>`
-	const list = synthesizers
-	    .map(
-		s =>
-		    `<button class="syn-run" data-synth="${esc(s.id)}" title="${esc(s.id)}">` +
-		    `<span class="syn-run-icon">▶</span> ${esc(s.label)}</button>`,
-	    )
+	const byFamily = new Map<string, SynthesizerInfo[]>()
+	for (const s of synthesizers) {
+	    const family = s.family || 'Random'
+	    const bucket = byFamily.get(family) ?? []
+	    bucket.push(s)
+	    byFamily.set(family, bucket)
+	}
+	const knownFamilies = new Set<string>(SYNTH_FAMILY_ORDER)
+	const orderedFamilies = [
+	    ...SYNTH_FAMILY_ORDER.filter(f => byFamily.has(f)),
+	    ...[...byFamily.keys()].filter(f => !knownFamilies.has(f)),
+	]
+	const groups = orderedFamilies
+	    .map(family => {
+		const items = (byFamily.get(family) ?? [])
+		    .map(
+			s =>
+			    `<button class="syn-run" data-synth="${esc(s.id)}" title="${esc(s.id)}">` +
+			    `<span class="syn-run-icon">▶</span> ${esc(s.label)}</button>`,
+		    )
+		    .join('')
+		return `<div class="syn-family"><div class="syn-family-title">${esc(family)}</div><div class="syn-list">${items}</div></div>`
+	    })
 	    .join('')
-	return `${header}<div class="syn-list">${list}</div>`
+	return `${sliderHtml}${header}<div class="syn-groups">${groups}</div>`
     }
 
     // ----------------------------------------------------------------- shell
@@ -483,8 +570,39 @@ export class InfoViewProvider implements vscode.Disposable {
     details.vc-step { border-left: 1px dashed var(--vscode-panel-border, rgba(128,128,128,0.4)); padding-left: 0.5em; }
 
     /* --- synthesis -------------------------------------------------------- */
+    .syn-budget { margin-bottom: 0.9em; }
+    .syn-budget-label {
+	font-family: var(--vscode-font-family, sans-serif);
+	font-size: 0.9em;
+	color: var(--vscode-editor-foreground);
+	display: block;
+	margin-bottom: 0.35em;
+    }
+    .syn-budget-label #budget-label { font-weight: 600; }
+    .syn-budget-slider {
+	width: 100%;
+	accent-color: var(--vscode-textLink-foreground);
+	cursor: pointer;
+    }
+    .syn-budget-hints {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75em;
+	color: var(--vscode-descriptionForeground);
+	margin-top: 0.15em;
+    }
     .syn-header { font-family: var(--vscode-font-family, sans-serif); margin-bottom: 0.5em; }
     .syn-header .hole { color: var(--vscode-symbolIcon-functionForeground, var(--vscode-textLink-foreground)); font-weight: 600; }
+    .syn-groups { display: flex; flex-direction: column; gap: 0.75em; }
+    .syn-family-title {
+	font-family: var(--vscode-font-family, sans-serif);
+	font-weight: 600;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--vscode-descriptionForeground);
+	margin-bottom: 0.25em;
+    }
     .syn-list { display: flex; flex-direction: column; gap: 0.25em; }
     .syn-run {
 	text-align: left;
@@ -504,6 +622,11 @@ export class InfoViewProvider implements vscode.Disposable {
     .syn-algo { font-family: var(--vscode-font-family, sans-serif); color: var(--vscode-editor-foreground); margin-bottom: 0.25em; }
     .syn-algo .done { color: var(--vscode-testing-iconPassed, #4caf50); }
     .syn-algo .spin { color: var(--vscode-descriptionForeground); }
+    .syn-algo .syn-starting {
+	font-weight: normal;
+	color: var(--vscode-descriptionForeground);
+	font-size: 0.9em;
+    }
     .syn-stats { font-family: var(--vscode-font-family, sans-serif); font-size: 0.9em; color: var(--vscode-descriptionForeground); margin-bottom: 0.35em; }
     .syn-stats .num { color: var(--vscode-editor-foreground); font-weight: 600; }
     .syn-best {
@@ -536,6 +659,32 @@ export class InfoViewProvider implements vscode.Disposable {
 <script>
     const vscode = acquireVsCodeApi();
 
+    const BUDGET_MIN = ${SYNTHESIS_BUDGET_MIN_S};
+    const BUDGET_MAX = ${SYNTHESIS_BUDGET_MAX_S};
+
+    function sliderToSeconds(pos) {
+	const t = pos / 100;
+	return BUDGET_MIN * Math.pow(BUDGET_MAX / BUDGET_MIN, t);
+    }
+
+    function formatBudget(seconds) {
+	const s = Math.round(seconds);
+	if (s < 60) return s + 's';
+	if (s < 3600) {
+	    const m = Math.floor(s / 60);
+	    const rem = s % 60;
+	    return rem > 0 ? m + 'm ' + rem + 's' : m + 'm';
+	}
+	const h = Math.floor(s / 3600);
+	const m = Math.round((s % 3600) / 60);
+	return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
+    }
+
+    function updateBudgetLabel(pos) {
+	const label = document.getElementById('budget-label');
+	if (label) label.textContent = formatBudget(sliderToSeconds(pos));
+    }
+
     function activate(tab) {
 	document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
 	document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
@@ -549,7 +698,21 @@ export class InfoViewProvider implements vscode.Disposable {
     document.getElementById('panel-synthesis').addEventListener('click', event => {
 	const btn = event.target.closest('.syn-run');
 	if (!btn) return;
-	vscode.postMessage({ type: 'synthesize', synthesizer: btn.dataset.synth });
+	const slider = document.getElementById('budget-slider');
+	const pos = slider ? Number(slider.value) : 0;
+	vscode.postMessage({
+	    type: 'synthesize',
+	    synthesizer: btn.dataset.synth,
+	    budgetSeconds: sliderToSeconds(pos),
+	});
+    });
+
+    document.getElementById('panel-synthesis').addEventListener('input', event => {
+	const slider = event.target.closest('#budget-slider');
+	if (!slider) return;
+	const pos = Number(slider.value);
+	updateBudgetLabel(pos);
+	vscode.postMessage({ type: 'setBudgetSlider', position: pos });
     });
 
     function setBadge(count) {
@@ -567,6 +730,14 @@ export class InfoViewProvider implements vscode.Disposable {
 	    document.getElementById('panel-context').innerHTML = data.context;
 	    document.getElementById('synthesis-list').innerHTML = data.synthesis;
 	    setBadge(data.errorCount || 0);
+	    const slider = document.getElementById('budget-slider');
+	    if (slider && typeof data.budgetSlider === 'number') {
+		slider.value = String(data.budgetSlider);
+		updateBudgetLabel(data.budgetSlider);
+	    } else if (typeof data.budgetLabel === 'string') {
+		const label = document.getElementById('budget-label');
+		if (label) label.textContent = data.budgetLabel;
+	    }
 	} else if (data.kind === 'synthesisProgress') {
 	    document.getElementById('synthesis-progress').innerHTML = data.html || '';
 	    document.getElementById('spin-synthesis').classList.toggle('hidden', !data.running);
@@ -716,7 +887,11 @@ function errorHtml(e: ErrorInfo): string {
 function synthesisProgressHtml(s: SynthesisProgress): string {
     const holeLabel = s.hole ? ` <span class="b-bar">·</span> ?${esc(s.hole)}` : ''
     const status = s.done ? '<span class="done">✓</span>' : '<span class="spin">⟳</span>'
-    const algo = `<div class="syn-algo">${status} ${esc(s.algorithm)}${holeLabel}</div>`
+    const starting = !s.done && s.created === 0 && s.assessed === 0 && s.elapsed === 0
+    const algo =
+	`<div class="syn-algo">${status} ${esc(s.algorithm)}${holeLabel}` +
+	(starting ? ' <span class="syn-starting">starting…</span>' : '') +
+	`</div>`
 
     const stats =
 	`<div class="syn-stats">` +

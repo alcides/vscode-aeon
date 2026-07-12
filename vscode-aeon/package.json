@@ -80,6 +80,13 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
+        },
+        "aeon.synthesis.budgetSlider": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Synthesis time budget. The slider position maps exponentially to a duration between 5 seconds (0) and 30 minutes (100); mid-range values grow faster than a linear scale."
         }
       }
     },

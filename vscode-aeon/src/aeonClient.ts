@@ -4,7 +4,7 @@ import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/no
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
 import { NotificationHandler } from './handlers/notificationHandler'
-import { aeonExecutable, defaultSynthesizer } from './config'
+import { aeonExecutable, defaultSynthesizer, synthesisBudgetSeconds } from './config'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
@@ -40,7 +40,16 @@ export class AeonClient implements Disposable {
                 const actions = await next(document, range, context, token)
                 if (!Array.isArray(actions)) return actions
                 const preferred = defaultSynthesizer()
-                return [...actions].sort((a, b) => {
+                const budget = synthesisBudgetSeconds()
+                const patched = actions.map(action => {
+                    if (!('command' in action)) return action
+                    const cmd = action.command
+                    if (!cmd || typeof cmd === 'string' || cmd.command !== 'aeon.synthesize') return action
+                    const args = [...(cmd.arguments ?? [])]
+                    if (args.length === 3) args.push(budget)
+                    return { ...action, command: { ...cmd, arguments: args } }
+                })
+                return [...patched].sort((a, b) => {
                     const aTitle = 'title' in a ? (a.title as string) : ''
                     const bTitle = 'title' in b ? (b.title as string) : ''
                     const aMatch = aTitle.includes(`with ${preferred}`) ? -1 : 0

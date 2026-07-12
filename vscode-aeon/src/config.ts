@@ -28,6 +28,40 @@ export function defaultSynthesizer(): string {
     return s?.trim() || 'gp'
 }
 
+/** Shortest synthesis budget (seconds) when the slider is at 0. */
+export const SYNTHESIS_BUDGET_MIN_S = 5
+/** Longest synthesis budget (seconds) when the slider is at 100 (30 minutes). */
+export const SYNTHESIS_BUDGET_MAX_S = 30 * 60
+
+/** The 0–100 synthesis budget slider position from settings. */
+export function synthesisBudgetSlider(): number {
+    const v = workspace.getConfiguration('aeon').get<number>('synthesis.budgetSlider')
+    if (typeof v !== 'number' || Number.isNaN(v)) return 0
+    return Math.min(100, Math.max(0, Math.round(v)))
+}
+
+/** Map a slider position (0–100) to a budget in seconds, exponentially between
+ * ``SYNTHESIS_BUDGET_MIN_S`` and ``SYNTHESIS_BUDGET_MAX_S``. */
+export function synthesisBudgetSeconds(slider?: number): number {
+    const pos = slider ?? synthesisBudgetSlider()
+    const t = pos / 100
+    return SYNTHESIS_BUDGET_MIN_S * Math.pow(SYNTHESIS_BUDGET_MAX_S / SYNTHESIS_BUDGET_MIN_S, t)
+}
+
+/** Human-readable synthesis budget, e.g. ``5s``, ``1m 30s``, ``30m``. */
+export function formatSynthesisBudget(seconds: number): string {
+    const s = Math.round(seconds)
+    if (s < 60) return `${s}s`
+    if (s < 3600) {
+        const m = Math.floor(s / 60)
+        const rem = s % 60
+        return rem > 0 ? `${m}m ${rem}s` : `${m}m`
+    }
+    const h = Math.floor(s / 3600)
+    const m = Math.round((s % 3600) / 60)
+    return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
+
 /**
  * Build the command + args used to invoke the `aeon` program (via `uvx`),
  * honouring the `aeon.localPackagePath` setting. `extraArgs` are appended after
