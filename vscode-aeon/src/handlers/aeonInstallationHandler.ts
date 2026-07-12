@@ -1,11 +1,10 @@
 import * as os from 'node:os'
 import * as path from 'path'
-import {Disposable, OutputChannel} from 'vscode'
-import {CommandResult} from '../utils/commandResult'
-import {NotificationHandler} from './notificationHandler'
-import {Platform, TerminalHandler} from './terminalHandler'
-import {useSystemInterpreter} from "../config";
-
+import { Disposable, OutputChannel } from 'vscode'
+import { aeonShellCommand } from '../config'
+import { CommandResult } from '../utils/commandResult'
+import { NotificationHandler } from './notificationHandler'
+import { Platform, TerminalHandler } from './terminalHandler'
 
 export interface PreConditionResult {
     success: boolean
@@ -16,35 +15,14 @@ export class AeonInstallationHandler implements Disposable {
     private readonly editorOutputChannel: OutputChannel
     private terminalHandler: TerminalHandler
     private readonly notificationHandler: NotificationHandler
-    private readonly envPath: string
 
-    constructor(editorOutputChannel: OutputChannel, envPath: string) {
+    constructor(editorOutputChannel: OutputChannel) {
         this.editorOutputChannel = editorOutputChannel
         this.terminalHandler = new TerminalHandler(editorOutputChannel)
         this.notificationHandler = new NotificationHandler()
-        this.envPath = envPath
     }
 
     dispose(): void {
-    }
-
-    getAeonExecutablePath(): string {
-        const platform = this.terminalHandler.getPlatform()
-        const exeName = platform === Platform.Windows ? 'aeon.exe' : 'aeon'
-
-        if (useSystemInterpreter()) {
-            return exeName
-        }
-
-        const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
-        return path.join(this.envPath, exeDirectory, exeName)
-    }
-
-    getPythonExecutablePath(): string {
-        const platform = this.terminalHandler.getPlatform()
-        const exeDirectory = platform === Platform.Windows ? 'Scripts' : 'bin'
-        const pythonExe = platform === Platform.Windows ? 'python.exe' : 'python'
-        return path.join(this.envPath, exeDirectory, pythonExe)
     }
 
     async checkUvInstallation(): Promise<CommandResult> {
@@ -53,46 +31,20 @@ export class AeonInstallationHandler implements Disposable {
         return await this.terminalHandler.runCommand(command)
     }
 
+    async checkUvxInstallation(): Promise<CommandResult> {
+        const platform = this.terminalHandler.getPlatform()
+        const command = platform === Platform.Windows ? 'where /f uvx' : 'which uvx'
+        return await this.terminalHandler.runCommand(command)
+    }
+
     async checkGitInstallation(): Promise<CommandResult> {
         const command = 'git --version'
         return await this.terminalHandler.runCommand(command)
     }
 
+    /** Verify the published (or local) aeon package is invocable through ``uvx``. */
     async checkAeonInstallation(): Promise<CommandResult> {
-        const executable = this.getAeonExecutablePath()
-        const command = `${executable} -h`
-        return await this.terminalHandler.runCommand(command)
-    }
-
-    async setupAeon(): Promise<CommandResult> {
-        const venvResult = await this.createNewPythonEnvironment()
-        if (!venvResult.success) {
-            void this.notificationHandler.showError(`Failed to create virtual environment: ${venvResult.stderr}`)
-            throw new Error('Venv creation failed')
-        }
-        void this.notificationHandler.showInformation('Virtual environment created successfully.')
-
-        const installResult = await this.installAeon()
-        if (!installResult.success) {
-            void this.notificationHandler.showError(`Failed to install Aeon: ${installResult.stderr}`)
-            throw new Error('Aeon installation failed')
-        }
-        void this.notificationHandler.showInformation('Aeon installed successfully.')
-        return installResult
-    }
-
-
-    async installAeon(): Promise<CommandResult> {
-        const AEON_PACKAGE = 'aeonlang'
-
-        const pythonPath = this.getPythonExecutablePath()
-        const command = `uv pip install --python "${pythonPath}" "${AEON_PACKAGE}"`
-        return await this.terminalHandler.runCommand(command)
-    }
-
-    async createNewPythonEnvironment(): Promise<CommandResult> {
-        const command = `uv venv "${this.envPath}"`
-        return await this.terminalHandler.runCommand(command)
+        return await this.terminalHandler.runCommand(aeonShellCommand(['-h']))
     }
 
     async displayInstallUvPrompt() {
@@ -173,7 +125,7 @@ export class AeonInstallationHandler implements Disposable {
                     }
                 },
             },
-            {modal: true},
+            { modal: true },
         )
     }
 
@@ -197,8 +149,8 @@ export class AeonInstallationHandler implements Disposable {
         const command =
             platform === Platform.Windows
                 ? 'powershell -ExecutionPolicy Bypass -c "' +
-                'Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
-                'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
+                  'Remove-Item -Force ((Get-Command uv | Select-Object -First 1).Source) -ErrorAction SilentlyContinue; ' +
+                  'Remove-Item -Force ((Get-Command uvx | Select-Object -First 1).Source) -ErrorAction SilentlyContinue"'
                 : 'rm -f $(which uv) $(which uvx)'
 
         return await this.terminalHandler.runCommand(command)
@@ -212,7 +164,7 @@ export class AeonInstallationHandler implements Disposable {
     }
 
     private async isUvExternallyManaged(checkUvInstallationResult: CommandResult): Promise<boolean> {
-        let uvPathString = checkUvInstallationResult.stdout.trim().split('/\r?\n')[0]
+        let uvPathString = checkUvInstallationResult.stdout.trim().split(/\r?\n/)[0]
         const expectedUvPath = this.getExpectedUvPath()
 
         if (uvPathString.startsWith('"') && uvPathString.endsWith('"')) {
@@ -225,10 +177,15 @@ export class AeonInstallationHandler implements Disposable {
     async checkPreConditions(): Promise<PreConditionResult> {
         const errors: string[] = []
 
-        const [git, uv] = await Promise.all([this.checkGitInstallation(), this.checkUvInstallation()])
+        const [git, uv, uvx] = await Promise.all([
+            this.checkGitInstallation(),
+            this.checkUvInstallation(),
+            this.checkUvxInstallation(),
+        ])
 
         if (!git.success) errors.push('Git is not installed or not available in PATH.')
         if (!uv.success) errors.push('Uv is not installed or not available in PATH.')
+        if (!uvx.success) errors.push('Uvx is not installed or not available in PATH.')
 
         return {
             success: errors.length === 0,

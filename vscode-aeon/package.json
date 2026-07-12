@@ -24,16 +24,6 @@
       "type": "object",
       "title": "Aeon",
       "properties": {
-        "aeon.environmentPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the environment which aeon will be installed on."
-        },
-        "aeon.useSystemInterpreter": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
-        },
         "aeon.localPackagePath": {
           "type": "string",
           "default": "",

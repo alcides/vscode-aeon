@@ -1,22 +1,5 @@
 import * as vscode from 'vscode'
 import { workspace } from 'vscode'
-import * as path from 'node:path'
-
-export function envPath(context: vscode.ExtensionContext): string {
-    const configInterpreterPath: string | undefined = vscode.workspace.getConfiguration('aeon').get('environmentPath')
-    if (configInterpreterPath && configInterpreterPath.trim() !== '') {
-        return configInterpreterPath
-    }
-
-    return path.join(context.globalStorageUri.fsPath, 'interpreter')
-}
-
-export function useSystemInterpreter(): boolean {
-    const useSystemInterpreter: boolean | undefined = vscode.workspace.getConfiguration('aeon')
-        .get('useSystemInterpreter')
-
-    return useSystemInterpreter === true
-}
 
 export function localPackagePath(): string {
     const p: string | undefined = vscode.workspace.getConfiguration('aeon').get('localPackagePath')
@@ -73,4 +56,11 @@ export function aeonExecutable(extraArgs: string[]): { command: string; args: st
         return { command: 'uvx', args: ['--from', pkgPath, 'aeon', ...extraArgs] }
     }
     return { command: 'uvx', args: ['--refresh', '--from', 'aeonlang', 'aeon', ...extraArgs] }
+}
+
+/** Shell-escaped ``uvx … aeon …`` command for terminal probes (``-h``, etc.). */
+export function aeonShellCommand(extraArgs: string[]): string {
+    const { command, args } = aeonExecutable(extraArgs)
+    const quote = (arg: string) => (/^[A-Za-z0-9_./:=+-]+$/.test(arg) ? arg : `"${arg.replace(/"/g, '\\"')}"`)
+    return [command, ...args.map(quote)].join(' ')
 }

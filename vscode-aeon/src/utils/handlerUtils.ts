@@ -4,7 +4,6 @@ import { AeonInstallationHandler } from '../handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from '../handlers/diagnosticsHandler'
 import { ProjectHandler } from '../handlers/projectHandler'
 import { UriHandler } from '../handlers/uriHandler'
-import { envPath } from '../config'
 
 export interface AeonBackgroundServices {
     projectHandler: ProjectHandler
@@ -39,7 +38,7 @@ export function activateBackgroundServices(context: ExtensionContext): AeonBackg
         commands.registerCommand('aeon.troubleshooting.showOutput', () => editorOutputChannel.show(true)),
     )
 
-    const aeonInstallationHandler = new AeonInstallationHandler(editorOutputChannel,envPath(context))
+    const aeonInstallationHandler = new AeonInstallationHandler(editorOutputChannel)
     context.subscriptions.push(
         commands.registerCommand(
             'aeon.setup.installUv',

@@ -30,14 +30,12 @@ When synthesizing a hole the following backends are available via the *Refactor*
 
 You can set a preferred synthesizer via the `aeon.defaultSynthesizer` setting — it will appear first in the code-action list.
 
-Requires **AeonLang 4.5.1** or newer on PyPI (or a local checkout via `aeon.localPackagePath`).
+Requires **AeonLang 4.5.1** or newer on PyPI (or a local checkout via `aeon.localPackagePath`). The extension invokes the compiler exclusively through **`uv` / `uvx`** — no system Python or managed venv is used.
 
 ## Configuration
 
 | Setting | Default | Description |
 |---|---|---|
-| `aeon.environmentPath` | `""` | Path to the Python environment where `aeonlang` is installed |
-| `aeon.useSystemInterpreter` | `false` | Use the system-wide `aeon` interpreter instead of the managed venv |
 | `aeon.localPackagePath` | `""` | Path to a local `aeon` source tree (uses `uvx --from <path>`) |
 | `aeon.defaultSynthesizer` | `"gp"` | Preferred synthesizer shown first in the code-action menu |
 
