@@ -4,7 +4,7 @@ import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/no
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from './handlers/diagnosticsHandler'
 import { NotificationHandler } from './handlers/notificationHandler'
-import { localPackagePath, defaultSynthesizer } from './config'
+import { aeonExecutable, defaultSynthesizer } from './config'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
@@ -23,7 +23,7 @@ export class AeonClient implements Disposable {
         this.outputChannel = aeonInstallationHandler.getOutputChannel()
         this.notificationHandler = aeonInstallationHandler.getNotificationHandler()
 
-        const serverExecutable: Executable = this.getServerExecutable(aeonInstallationHandler)
+        const serverExecutable: Executable = this.getServerExecutable()
         const clientOptions: LanguageClientOptions = this.getClientOptions()
         this.client = new LanguageClient('aeon', 'Aeon', serverExecutable, clientOptions)
     }
@@ -34,6 +34,8 @@ export class AeonClient implements Disposable {
                 this.diagnosticsHandler.updateDiagnostics(uri, diagnostics)
                 next(uri, diagnostics)
             },
+            // Suppress the server's inferred-type inlay hints (rendered in grey) from the editor.
+            provideInlayHints: () => [],
             provideCodeActions: async (document, range, context, token, next) => {
                 const actions = await next(document, range, context, token)
                 if (!Array.isArray(actions)) return actions
@@ -55,18 +57,8 @@ export class AeonClient implements Disposable {
         }
     }
 
-    private getServerExecutable(aeonInstallationHandler: AeonInstallationHandler) {
-        const pkgPath = localPackagePath()
-        if (pkgPath) {
-            return {
-                command: "uvx",
-                args: ['--from', pkgPath, 'aeon', '--language-server-mode'],
-            }
-        }
-        return {
-            command: "uvx",
-            args: ['--refresh', '--from', 'aeonlang', 'aeon', '--language-server-mode'],
-        }
+    private getServerExecutable() {
+        return aeonExecutable(['--language-server-mode'])
     }
 
     /** Send a custom request (e.g. `aeon/infoView`) to the language server. */
@@ -80,6 +72,19 @@ export class AeonClient implements Disposable {
     /** Subscribe to a server-pushed notification (e.g. `aeon/synthesisProgress`). */
     onNotification(method: string, handler: (params: unknown) => void): Disposable {
 	return this.client.onNotification(method, handler)
+    }
+
+    /** Run a server-side command (e.g. `aeon.synthesize`) via
+     * `workspace/executeCommand`. Server commands are not registered as VS Code
+     * commands, so they must be dispatched through the LSP client. */
+    async executeCommand(command: string, args: unknown[]): Promise<void> {
+	if (!this.running) {
+	    throw new Error('Aeon language server is not running')
+	}
+	await this.client.sendRequest('workspace/executeCommand', {
+	    command,
+	    arguments: args,
+	})
     }
 
     async restart(): Promise<void> {
