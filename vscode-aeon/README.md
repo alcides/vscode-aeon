@@ -30,6 +30,8 @@ When synthesizing a hole the following backends are available via the *Refactor*
 
 You can set a preferred synthesizer via the `aeon.defaultSynthesizer` setting — it will appear first in the code-action list.
 
+Requires **AeonLang 4.5.1** or newer on PyPI (or a local checkout via `aeon.localPackagePath`).
+
 ## Configuration
 
 | Setting | Default | Description |
