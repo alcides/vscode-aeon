@@ -54,6 +54,7 @@ interface InfoViewResponse {
     errors: ErrorInfo[]
     hole: string | null
     synthesizers: SynthesizerInfo[]
+    aeonVersion?: string
 }
 
 /** Wire format of the `aeon/synthesisProgress` notification the server streams
@@ -250,6 +251,11 @@ export class InfoViewProvider implements vscode.Disposable {
 
 	const fileName = document.uri.path.split('/').pop() ?? document.uri.path
 	const location = `${esc(fileName)}:${position.line + 1}:${position.character + 1}`
+	const aeonVersion = info?.aeonVersion?.trim()
+	const locationLine =
+	    aeonVersion && aeonVersion !== 'unknown'
+		? `${location} · AeonLang ${esc(aeonVersion)}`
+		: location
 	const budgetSlider = synthesisBudgetSlider()
 
 	// Prefer the server's structured errors; fall back to the diagnostics
@@ -259,7 +265,7 @@ export class InfoViewProvider implements vscode.Disposable {
 
 	void this.panel.webview.postMessage({
 	    kind: 'update',
-	    location,
+	    location: locationLine,
 	    errors: this.renderErrors(document, position, info),
 	    errorCount,
 	    context: this.renderContext(info),
