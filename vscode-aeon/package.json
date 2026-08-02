@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.21",
+  "version": "0.0.27",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.116.0"
@@ -59,7 +59,20 @@
         "aeon.defaultSynthesizer": {
           "type": "string",
           "default": "gp",
-          "enum": ["tdsyn_enumerative", "tdsyn", "tactics", "gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
+          "enum": [
+            "tdsyn_enumerative",
+            "tdsyn",
+            "tactics",
+            "gp",
+            "enumerative",
+            "random_search",
+            "synquid",
+            "hc",
+            "1p1",
+            "smt",
+            "decision_tree",
+            "llm"
+          ],
           "enumDescriptions": [
             "Type-directed synthesis (breadth-first search with SMT-solved leaves)",
             "Type-directed synthesis (alias for tdsyn_enumerative)",
@@ -130,14 +143,14 @@
         "category": "Aeon"
       },
       {
-	"command": "aeon.infoView.toggle",
-	"title": "Info View : Toggle",
-	"category": "Aeon"
+        "command": "aeon.infoView.toggle",
+        "title": "Info View : Toggle",
+        "category": "Aeon"
       },
       {
-	"command": "aeon.infoView.open",
-	"title": "Info View : Open",
-	"category": "Aeon"
+        "command": "aeon.infoView.open",
+        "title": "Info View : Open",
+        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -185,12 +198,12 @@
         {
           "command": "aeon.input.convert",
           "when": "editorLangId == aeon"
-	},
-	{
-	  "command": "aeon.infoView.toggle"
-	},
-	{
-	  "command": "aeon.infoView.open"
+        },
+        {
+          "command": "aeon.infoView.toggle"
+        },
+        {
+          "command": "aeon.infoView.open"
         }
       ]
     },
