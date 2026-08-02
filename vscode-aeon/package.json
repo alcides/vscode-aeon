@@ -2,7 +2,7 @@
   "name": "aeon-lang",
   "displayName": "Æon Language",
   "description": "Aeon language support for VS Code",
-  "version": "0.0.27",
+  "version": "0.0.21",
   "publisher": "AlcidesFonseca",
   "engines": {
     "vscode": "^1.116.0"
@@ -24,6 +24,16 @@
       "type": "object",
       "title": "Aeon",
       "properties": {
+        "aeon.environmentPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the environment which aeon will be installed on."
+        },
+        "aeon.useSystemInterpreter": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
+        },
         "aeon.localPackagePath": {
           "type": "string",
           "default": "",
@@ -70,13 +80,6 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
-        },
-        "aeon.synthesis.budgetSlider": {
-          "type": "number",
-          "default": 0,
-          "minimum": 0,
-          "maximum": 100,
-          "description": "Synthesis time budget. The slider position maps exponentially to a duration between 5 seconds (0) and 30 minutes (100); mid-range values grow faster than a linear scale."
         }
       }
     },
@@ -291,11 +294,11 @@
     "@types/node": "^24",
     "@types/vscode": "^1.116.0",
     "@vscode/vsce": "^3.6.0",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.28.1",
     "eslint": "^9.13.0",
-    "ovsx": "^1.0.1",
+    "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.61.0"
+    "typescript-eslint": "^8.16.0"
   },
   "icon": "images/aeon_logo.png",
   "dependencies": {
