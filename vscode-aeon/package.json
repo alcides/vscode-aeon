@@ -308,7 +308,7 @@
     "@types/vscode": "^1.125.0",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.28.1",
-    "eslint": "^9.13.0",
+    "eslint": "^10.8.0",
     "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.16.0"
