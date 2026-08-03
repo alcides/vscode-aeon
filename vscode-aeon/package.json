@@ -24,6 +24,16 @@
       "type": "object",
       "title": "Aeon",
       "properties": {
+        "aeon.environmentPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the environment which aeon will be installed on."
+        },
+        "aeon.useSystemInterpreter": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, uses the system-wide Aeon interpreter instead of the local virtual environment."
+        },
         "aeon.localPackagePath": {
           "type": "string",
           "default": "",
@@ -49,7 +59,20 @@
         "aeon.defaultSynthesizer": {
           "type": "string",
           "default": "gp",
-          "enum": ["tdsyn_enumerative", "tdsyn", "tactics", "gp", "enumerative", "random_search", "synquid", "hc", "1p1", "smt", "decision_tree", "llm"],
+          "enum": [
+            "tdsyn_enumerative",
+            "tdsyn",
+            "tactics",
+            "gp",
+            "enumerative",
+            "random_search",
+            "synquid",
+            "hc",
+            "1p1",
+            "smt",
+            "decision_tree",
+            "llm"
+          ],
           "enumDescriptions": [
             "Type-directed synthesis (breadth-first search with SMT-solved leaves)",
             "Type-directed synthesis (alias for tdsyn_enumerative)",
@@ -70,13 +93,6 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically open the Aeon Info View (goal, expression type and typing context at the cursor) when an Aeon file is open on startup."
-        },
-        "aeon.synthesis.budgetSlider": {
-          "type": "number",
-          "default": 0,
-          "minimum": 0,
-          "maximum": 100,
-          "description": "Synthesis time budget. The slider position maps exponentially to a duration between 5 seconds (0) and 30 minutes (100); mid-range values grow faster than a linear scale."
         }
       }
     },
@@ -127,14 +143,14 @@
         "category": "Aeon"
       },
       {
-	"command": "aeon.infoView.toggle",
-	"title": "Info View : Toggle",
-	"category": "Aeon"
+        "command": "aeon.infoView.toggle",
+        "title": "Info View : Toggle",
+        "category": "Aeon"
       },
       {
-	"command": "aeon.infoView.open",
-	"title": "Info View : Open",
-	"category": "Aeon"
+        "command": "aeon.infoView.open",
+        "title": "Info View : Open",
+        "category": "Aeon"
       }
     ],
     "grammars": [
@@ -182,12 +198,12 @@
         {
           "command": "aeon.input.convert",
           "when": "editorLangId == aeon"
-	},
-	{
-	  "command": "aeon.infoView.toggle"
-	},
-	{
-	  "command": "aeon.infoView.open"
+        },
+        {
+          "command": "aeon.infoView.toggle"
+        },
+        {
+          "command": "aeon.infoView.open"
         }
       ]
     },
@@ -291,11 +307,11 @@
     "@types/node": "^24",
     "@types/vscode": "^1.116.0",
     "@vscode/vsce": "^3.6.0",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.28.1",
     "eslint": "^9.13.0",
-    "ovsx": "^1.0.1",
+    "ovsx": "^0.10.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.61.0"
+    "typescript-eslint": "^8.16.0"
   },
   "icon": "images/aeon_logo.png",
   "dependencies": {
