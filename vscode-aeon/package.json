@@ -304,7 +304,7 @@
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "^24",
+    "@types/node": "^26",
     "@types/vscode": "^1.125.0",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.28.1",
