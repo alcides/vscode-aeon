@@ -5,7 +5,7 @@
   "version": "0.0.27",
   "publisher": "AlcidesFonseca",
   "engines": {
-    "vscode": "^1.116.0"
+    "vscode": "^1.125.0"
   },
   "categories": [
     "Programming Languages"
@@ -305,7 +305,7 @@
     "@eslint/js": "^9.13.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "^24",
-    "@types/vscode": "^1.116.0",
+    "@types/vscode": "^1.125.0",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.28.1",
     "eslint": "^9.13.0",
