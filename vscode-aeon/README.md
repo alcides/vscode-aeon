@@ -11,24 +11,19 @@ This extension provides VS Code support for the [Aeon programming language](http
 
 ## Synthesizers
 
-When synthesizing a hole the following backends are available via the *Refactor* code-action menu:
+The *Refactor* code-action menu and the Info View's **Synthesis** tab show every
+algorithm advertised by the connected Aeon language server, grouped by family:
+type-directed, example-driven, constraint solving, automata, grammar search,
+metaheuristic, and LLM-assisted synthesis. This includes Synquid, decision trees,
+Contata, CP-SAT, BUSTLE, AMaze, ReGuS, bounded Boolean synthesis, and each supported
+LLM backend/model. See the [compiler's synthesizer guide](https://github.com/alcides/aeon/blob/master/docs/synthesizers.md)
+for each algorithm's specifications and optional dependencies.
 
-| Identifier | Description |
-|---|---|
-| `tdsyn_enumerative` | Type-directed synthesis (breadth-first search with SMT-solved leaves) |
-| `tdsyn` | Type-directed synthesis (alias for `tdsyn_enumerative`) |
-| `tactics` | Random tactic search (Lean-style) |
-| `gp` | Genetic programming *(default)* |
-| `enumerative` | Exhaustive enumerative search |
-| `random_search` | Random program search |
-| `synquid` | Synquid-style type-directed enumerative synthesis |
-| `hc` | Hill climbing |
-| `1p1` | One-plus-one evolutionary strategy |
-| `smt` | SMT-guided synthesis via z3 (best for arithmetic/boolean constraints) |
-| `decision_tree` | Decision tree regressor fitted from `@csv_data` examples |
-| `llm` | LLM-based synthesis via Ollama |
-
-You can set a preferred synthesizer via the `aeon.defaultSynthesizer` setting — it will appear first in the code-action list.
+Set `aeon.defaultSynthesizer` in Settings to choose from the complete algorithm
+catalogue. The selected backend appears first in code actions. Existing CLI
+aliases such as `tdsyn`, `cpsat`, and `llm` still select their canonical backend.
+The live menus use the installed compiler's list, so update Aeon (or set
+`aeon.localPackagePath` to a current checkout) to use newly added algorithms.
 
 Requires **AeonLang 4.5.1** or newer on PyPI (or a local checkout via `aeon.localPackagePath`). The extension invokes the compiler exclusively through **`uv` / `uvx`** — no system Python or managed venv is used.
 

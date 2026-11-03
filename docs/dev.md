@@ -15,7 +15,24 @@ This page is designed for software developers who are helping to develop the Aeo
 
 To debug the tests, use the launch configuration named `Extension Tests - SuiteName`.
 
-## Packaging
+## Updating synthesis algorithms
+
+The live Refactor menu and Synthesis tab use the connected language server's
+complete algorithm list, labels, and family order. VS Code's Settings editor
+requires a static schema in `package.json`. Refresh that schema and the legacy
+ID aliases from an Aeon checkout with its dependencies installed:
+
+```sh
+PYTHONPATH=/path/to/aeon /path/to/aeon/.venv/bin/python scripts/sync-synthesizers.py
+PYTHONPATH=/path/to/aeon /path/to/aeon/.venv/bin/python scripts/sync-synthesizers.py --check
+npm test
+```
+
+Commit the generated `vscode-aeon/package.json` and
+`vscode-aeon/src/synthesisAliases.json`. No backend list is hard-coded in the
+live Synthesis tab, so newly registered server algorithms appear automatically.
+
+## Packaging the extension
 
 To publish the extension on the VS Code marketplace you should run the `./release.sh` script. See [publishing extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) for more information.
 
