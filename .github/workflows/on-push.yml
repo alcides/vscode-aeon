@@ -41,6 +41,7 @@ jobs:
         run: |
           npm ci
           npm run build
+          npm test
 
       - name: Package
         run: npm run package --workspace=vscode-aeon
