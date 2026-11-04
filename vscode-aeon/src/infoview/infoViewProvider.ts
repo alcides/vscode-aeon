@@ -7,6 +7,7 @@ import {
     SYNTHESIS_BUDGET_MAX_S,
     SYNTHESIS_BUDGET_MIN_S,
 } from '../config'
+import { groupSynthesizers, SynthesizerInfo } from '../synthesis'
 
 /** Wire format of the custom `aeon/infoView` LSP request (see
  * `aeon/lsp/infoview.py` in the compiler repository). Each context entry is a
@@ -40,13 +41,6 @@ interface ErrorInfo {
     atCursor: boolean
 }
 
-/** A synthesis backend offered for the hole under the cursor. */
-interface SynthesizerInfo {
-    id: string
-    label: string
-    family: string
-}
-
 interface InfoViewResponse {
     target: { type: string; predicate: string | null } | null
     locals: InfoEntry[]
@@ -74,8 +68,6 @@ interface SynthesisProgress {
 const INFOVIEW_REQUEST = 'aeon/infoView'
 const SYNTHESIZE_COMMAND = 'aeon.synthesize'
 const DEBOUNCE_MS = 150
-/** Display order for synthesis families in the Synthesis tab. */
-const SYNTH_FAMILY_ORDER = ['Enumerative', 'Random', 'Evolutionary', 'LLM'] as const
 /** Keep a finished synthesis result visible this long before clearing it. */
 const SYNTHESIS_CLEAR_MS = 12000
 
@@ -387,21 +379,9 @@ export class InfoViewProvider implements vscode.Disposable {
 	    return sliderHtml + '<div class="empty">Place the cursor on a <code>?hole</code> to synthesize it.</div>'
 	}
 	const header = `<div class="syn-header">Synthesize <span class="hole">?${esc(hole)}</span> with:</div>`
-	const byFamily = new Map<string, SynthesizerInfo[]>()
-	for (const s of synthesizers) {
-	    const family = s.family || 'Random'
-	    const bucket = byFamily.get(family) ?? []
-	    bucket.push(s)
-	    byFamily.set(family, bucket)
-	}
-	const knownFamilies = new Set<string>(SYNTH_FAMILY_ORDER)
-	const orderedFamilies = [
-	    ...SYNTH_FAMILY_ORDER.filter(f => byFamily.has(f)),
-	    ...[...byFamily.keys()].filter(f => !knownFamilies.has(f)),
-	]
-	const groups = orderedFamilies
-	    .map(family => {
-		const items = (byFamily.get(family) ?? [])
+	const groups = [...groupSynthesizers(synthesizers)]
+	    .map(([family, backends]) => {
+		const items = backends
 		    .map(
 			s =>
 			    `<button class="syn-run" data-synth="${esc(s.id)}" title="${esc(s.id)}">` +
