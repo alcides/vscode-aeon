@@ -1,4 +1,4 @@
-import { Disposable, OutputChannel, workspace } from 'vscode'
+import { Disposable, LogOutputChannel, workspace } from 'vscode'
 import { LanguageClientOptions } from 'vscode-languageclient'
 import { Executable, LanguageClient, Middleware } from 'vscode-languageclient/node'
 import { AeonInstallationHandler, PreConditionResult } from './handlers/aeonInstallationHandler'
@@ -9,7 +9,7 @@ import { configureSynthesisActions } from './synthesis'
 
 export class AeonClient implements Disposable {
     private client: LanguageClient
-    private outputChannel: OutputChannel
+    private outputChannel: LogOutputChannel
     private aeonInstallationHandler: AeonInstallationHandler
     private diagnosticsHandler: DiagnosticsHandler
     private notificationHandler: NotificationHandler

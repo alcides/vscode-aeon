@@ -1,4 +1,4 @@
-import { commands, ExtensionContext, OutputChannel, window } from 'vscode'
+import { commands, ExtensionContext, LogOutputChannel, window } from 'vscode'
 import { AeonClient } from '../aeonClient'
 import { AeonInstallationHandler } from '../handlers/aeonInstallationHandler'
 import { DiagnosticsHandler } from '../handlers/diagnosticsHandler'
@@ -7,7 +7,7 @@ import { UriHandler } from '../handlers/uriHandler'
 
 export interface AeonBackgroundServices {
     projectHandler: ProjectHandler
-    editorOutputChannel: OutputChannel
+    editorOutputChannel: LogOutputChannel
     aeonInstallationHandler: AeonInstallationHandler
     diagnosticsHandler: DiagnosticsHandler
 }
@@ -33,7 +33,7 @@ export function activateBackgroundServices(context: ExtensionContext): AeonBackg
         ),
     )
 
-    const editorOutputChannel = window.createOutputChannel('Aeon : Editor')
+    const editorOutputChannel = window.createOutputChannel('Aeon : Editor', { log: true })
     context.subscriptions.push(
         commands.registerCommand('aeon.troubleshooting.showOutput', () => editorOutputChannel.show(true)),
     )
