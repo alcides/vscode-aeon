@@ -375,7 +375,7 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "build": "npm run compile",
-    "test": "esbuild src/synthesis.ts --bundle --platform=node --outfile=out/synthesis.cjs && node --test test/*.test.cjs",
+    "test": "esbuild src/synthesis.ts --bundle --platform=node --outfile=out/synthesis.cjs && node --test test/synthesis.test.cjs",
     "compile": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode",
     "lint": "eslint",
     "watch": "esbuild src/extension.ts --bundle --platform=node --target=node16 --outfile=out/extension.js --external:vscode --watch",
