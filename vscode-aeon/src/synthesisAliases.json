@@ -1,0 +1,7 @@
+{
+    "tdsyn": "tdsyn_enumerative",
+    "ortools_int": "ortools",
+    "cpsat": "ortools",
+    "xfta": "symetric",
+    "llm": "llm_qwen2.5-coder-32b"
+}
