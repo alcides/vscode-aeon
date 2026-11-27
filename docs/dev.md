@@ -3,9 +3,29 @@
 This page is designed for software developers who are helping to develop the Aeon VS Code extension.
 
 ### Building
-- Make sure you have an up to date installation of `npm` and `node.js`.  For example `npm` version 8.1.3 and `node.js` version v16.13.0.
-- Run `npm install` in your workspace root folder to set up the project's dependencies.
-- Run `npm run build`. This compiles the extension.
+- Use Node.js 20, matching CI, with its bundled npm.
+- Run `npm ci` in your workspace root folder to install the locked dependencies.
+- Run `npm run typecheck` to check the extension with TypeScript 7.
+- Run `npm run build`. This type-checks and compiles the extension, as it does in CI.
+- Run `npm test` to run the extension's tests.
+
+### TypeScript compiler and tooling
+
+Both workspace manifests use the [TypeScript team's compatibility setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6-0):
+
+- `@typescript/native` aliases TypeScript 7 and provides `tsc` for type-checking.
+- `typescript` aliases `@typescript/typescript6`, which provides the TypeScript 6
+  JavaScript API required by `typescript-eslint` and `prettier-plugin-organize-imports`.
+  Its separate compiler executable is named `tsc6`.
+
+Keep these aliases aligned in the root and extension manifests. Replacing the
+`typescript` alias with version 7 breaks the tooling's peer dependencies and API
+access. `npm ci` should work without `--force` or `--legacy-peer-deps`.
+
+The workspace's `typescript.tsdk` setting points to the compatibility package's
+underlying TypeScript 6 language service. Esbuild still produces the extension's
+CommonJS bundle; the TypeScript configuration uses bundler resolution for
+type-checking without emitting files.
 
 ### Debugging
 - Complete the 'Building' instructions above.

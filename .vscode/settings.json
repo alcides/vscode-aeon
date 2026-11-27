@@ -6,7 +6,7 @@
         "**/.vscode-test": true, // set this to false to include ".vscode-test" folder in search results
         "**/node_modules": true // set this to false to include "node_modules" folder in search results
     },
-    "typescript.tsdk": "./node_modules/typescript/lib", // we want to use the TS server from our node_modules folder to control its version
+    "typescript.tsdk": "./node_modules/@typescript/old/lib", // TypeScript 6 language service for tools that require the JavaScript API
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "[markdown]": {

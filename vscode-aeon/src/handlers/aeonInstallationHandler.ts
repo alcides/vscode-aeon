@@ -1,6 +1,6 @@
 import * as os from 'node:os'
 import * as path from 'path'
-import { Disposable, OutputChannel } from 'vscode'
+import { Disposable, LogOutputChannel } from 'vscode'
 import { aeonShellCommand } from '../config'
 import { CommandResult } from '../utils/commandResult'
 import { NotificationHandler } from './notificationHandler'
@@ -12,11 +12,11 @@ export interface PreConditionResult {
 }
 
 export class AeonInstallationHandler implements Disposable {
-    private readonly editorOutputChannel: OutputChannel
+    private readonly editorOutputChannel: LogOutputChannel
     private terminalHandler: TerminalHandler
     private readonly notificationHandler: NotificationHandler
 
-    constructor(editorOutputChannel: OutputChannel) {
+    constructor(editorOutputChannel: LogOutputChannel) {
         this.editorOutputChannel = editorOutputChannel
         this.terminalHandler = new TerminalHandler(editorOutputChannel)
         this.notificationHandler = new NotificationHandler()
